@@ -1,0 +1,10 @@
+Probably later
+The particles around the black hole aren't forming a spiral. This is probably because they are not interacting with each other
+    Need to come up with a fast way for the particles to also exert gravity on each other. 
+    Distance calculation would probably be the slowest thing    
+Photon emission:
+    Emit photons from each particle
+        N Photons in random directions 
+        Photons added to the particle system 
+        Photons collide with the viewing plane, set a permanent particle there
+        Make all other particles invisible
