@@ -1,6 +1,6 @@
 import { Vector3, Scene } from "three";
 import { IParticle, Particle } from "./particle-system";
-import { VisibleParticle } from "../space-particle";
+import { VisibleParticle } from "./visible-particle";
 
 export interface IParticleGenerator {
     generate(): IParticle;
@@ -40,7 +40,7 @@ export class ParticleGenerator implements IParticleGenerator {
         particle.setLifespan(this.lifespan);
         return particle;
     }
-    private randomVelocity() {
+    protected randomVelocity() {
         if (this.min_vel == 0 && this.max_vel == 0) {
             return new Vector3();
         }
@@ -83,22 +83,26 @@ export class ParticleGenerator implements IParticleGenerator {
 
 }
 
+
 export class VisibleParticleGenerator extends ParticleGenerator {
     scene: Scene;
     radius: number;
-    constructor(scene: Scene, radius = 0.3) {
+    color: string;
+    constructor(scene: Scene, radius = 0.3, color = "#ff0000") {
         super();
         this.radius = radius;
         this.scene = scene;
+        this.color = color;
     }
     generate(): IParticle {
         const particle = super.generate();
-        const visible_particle = new VisibleParticle(this.scene, "p", this.radius, "#ff0000", particle.getMass());
+        const visible_particle = new VisibleParticle(this.scene, "p", this.radius, this.color, particle.getMass());
         visible_particle.setVelocity(particle.getVelocity().x, particle.getVelocity().y, particle.getVelocity().z);
         visible_particle.setPosition(particle.getPosition().x, particle.getPosition().y, particle.getPosition().z);
         visible_particle.setLifespan(particle.getLifespan());
         // visible_particle.setPosition(Math.random() * 100, Math.random() * 100 , 0);
-        console.log(visible_particle.getPosition().x, visible_particle.getPosition().y, visible_particle.getPosition().z);
+        // console.log(visible_particle.getPosition().x, visible_particle.getPosition().y, visible_particle.getPosition().z);
         return visible_particle;
     }
 }
+

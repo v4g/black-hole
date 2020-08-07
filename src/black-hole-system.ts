@@ -1,9 +1,10 @@
 import { BlackHoleParticleSystem } from "./black-hole-particle-system";
-import { Particle, IParticle, GravityForce } from "./particle-system/particle-system";
+import { GravityForce } from "./particle-system/particle-system";
 import { IParticleGenerator, VisibleParticleGenerator } from "./particle-system/particle-generator";
-import { VisibleParticle } from "./space-particle";
+import { SpaceParticleGenerator } from "./space-particle";
 import { Vector3, Scene } from "three";
 import { ScaledUnits } from "./scaled-units";
+import { VisibleParticle } from "./particle-system/visible-particle";
 
 /**
  * This class will encapsulate all the things needed to get the black
@@ -19,7 +20,7 @@ export class BlackHoleSystem {
     constructor(scene: Scene) {
         this.ps = new BlackHoleParticleSystem();
         this.blackHole = new VisibleParticle(scene, "blackHole",1, "#ffffff", 100);
-        this.particleGenerator = new VisibleParticleGenerator(scene, 0.1);
+        this.particleGenerator = new SpaceParticleGenerator(scene, this.ps,  0.1);
         this.particleGenerator2 = new VisibleParticleGenerator(scene, 0.1);
     }
     initializeSystem() {
@@ -35,10 +36,9 @@ export class BlackHoleSystem {
         this.particleGenerator2.setPosition(new Vector3(0, 20, 0));
     }
     update(time_step: number) {
-        if (Math.random() > 0.6 && this.count < 2500) {
+        if (Math.random() > 0.6 && this.count < 100) {
             const particle = this.particleGenerator.generate();
             this.ps.addParticle(particle);
-            // console.log("Particle was generated", particle);
             const particle2 = this.particleGenerator2.generate();
             this.ps.addParticle(particle2);
             this.count++;    

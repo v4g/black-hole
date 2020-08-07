@@ -5,6 +5,7 @@ The particles around the black hole aren't forming a spiral. This is probably be
 Photon emission:
     Emit photons from each particle
         N Photons in random directions 
-        Photons added to the particle system 
+        X Photons added to the particle system 
         Photons collide with the viewing plane, set a permanent particle there
         Make all other particles invisible
+        Make units consistent

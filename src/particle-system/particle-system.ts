@@ -1,4 +1,5 @@
 import { Vector3 } from "three";
+import { timeStamp } from "console";
 
 export interface IParticle {
     getMass(): number;
@@ -12,7 +13,8 @@ export interface IParticle {
     setLifespan(l: number): number;
     getAge(): number;
     setAge(a: number): number;
-    postDeath(): any;
+    onDeath(): any;
+    update(): any;
 }
 export class Particle implements IParticle {
     private velocity: Vector3;
@@ -21,14 +23,15 @@ export class Particle implements IParticle {
     private radius: number;
     private lifeSpan: number;
     private age: number;
-    constructor(mass?: number, radius=1, lifespan=0) {
+    constructor(mass = 1, radius=1, lifespan=0) {
         this.velocity = new Vector3();
         this.position = new Vector3();
-        if (mass) this.mass = mass;
-        else this.mass = 1;
+        this.mass = mass;
         this.radius = radius;
         this.lifeSpan = lifespan;
         this.age = 0;
+    }
+    update() {
     }
     setLifespan(lifespan: number): number {
         this.lifeSpan = lifespan;
@@ -61,7 +64,7 @@ export class Particle implements IParticle {
     getRadius() {
         return this.radius;
     }
-    postDeath() {
+    onDeath() {
 
     }
 
@@ -201,7 +204,14 @@ export class ParticleSystem {
      */
     update(time_step: number) {
         this.updateRK4(time_step);
+        this.postUpdate();
         this.updateParticleLives(time_step);
+    }
+
+    postUpdate() {
+        this.particles.forEach(p=> {
+            p.update();
+        }, this);
     }
 
     /**
@@ -214,11 +224,11 @@ export class ParticleSystem {
             let particle = this.particles[i];
             particle.setAge(particle.getAge() + time_step);
             if (particle.getLifespan() > 0 && particle.getAge() > particle.getLifespan()) {
-                particle.postDeath();
+                particle.onDeath();
                 this.removeParticle(i);
             }
             if (particle.getPosition().x > 50 || particle.getPosition().y > 50 || particle.getPosition().x < -50 || particle.getPosition().y < -50) {
-                particle.postDeath();
+                particle.onDeath();
                 this.removeParticle(i);
             }    
         }    
