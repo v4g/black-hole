@@ -63,7 +63,7 @@ export class ScaledUnits {
 
     /**
      * Returns value of the time in seconds
-     * @param val The time in new units you want in seconds
+     * @param val The time in new units that you want in seconds
      */
     getUnscaledTime(val: number): number {
         return val * this._seconds;
@@ -76,4 +76,13 @@ export class ScaledUnits {
     getScaledVelocity(val: number): number {
         return val * this.seconds / this.metres;
     }
+
+    /**
+     * Returns value of the time in seconds
+     * @param val The velocity in new units that you want in m/s
+     */
+    getUnscaledVelocity(val: number): number {
+        return val * this._metres / this._seconds;
+    }
+
 }

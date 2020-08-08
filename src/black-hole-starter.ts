@@ -9,7 +9,7 @@ export class BlackHoleStarter extends Boilerplate {
     }
     postInitHook() {
         this.system = new BlackHoleSystem(this.scene);
-        this.system.initializeSystem();
+        this.system.initializeSystem(this.scene);
     }
 
     animateHook() {

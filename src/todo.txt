@@ -9,3 +9,6 @@ Photon emission:
         Photons collide with the viewing plane, set a permanent particle there
         Make all other particles invisible
         Make units consistent
+Optimization:
+    Only a snapshot of the black hole can be obtained by simulating nothing else but photons
+    The speed of the simulation would have to be slowed down

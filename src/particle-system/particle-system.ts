@@ -1,5 +1,4 @@
 import { Vector3 } from "three";
-import { timeStamp } from "console";
 
 export interface IParticle {
     getMass(): number;
