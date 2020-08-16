@@ -12,3 +12,7 @@ Photon emission:
 Optimization:
     Only a snapshot of the black hole can be obtained by simulating nothing else but photons
     The speed of the simulation would have to be slowed down
+Investigate:
+    Simulation is unstable when particles get too close to the black hole. Why? If its just acceleration, a 2nd order method should suffice?
+
+Velocity generation of particles. The velocities must be generated tangential to the position of the particles (w.r.t  to the blackhole)

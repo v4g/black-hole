@@ -1,6 +1,6 @@
 import { Particle, IParticle, ParticleSystem } from "./particle-system/particle-system";
 import { SphereBufferGeometry, MeshStandardMaterial, Mesh, Vector3, PointLight, Color, Scene, MeshBasicMaterial } from "three";
-import { IParticleGenerator, VisibleParticleGenerator, ParticleGenerator } from "./particle-system/particle-generator";
+import { IParticleGenerator, VisibleParticleGenerator, ParticleGenerator, EllipticalParticleGenerator } from "./particle-system/particle-generator";
 import { VisibleParticle } from "./particle-system/visible-particle";
 import { ScaledUnits } from "./scaled-units";
 
@@ -23,9 +23,11 @@ export class SpaceParticle implements IParticle {
      * Generate photons
      */
     update() {
-        // const photon = this.generator.generate();
-        // console.log(photon.getMass());
-        // this.ps.addParticle(photon);
+        if (Math.random() > 0.99) {
+            // const photon = this.generator.generate();
+            // console.log(photon.getMass());
+            // this.ps.addParticle(photon);    
+        }
     }
     getMass(): number {
         return this.particle.getMass();
@@ -71,17 +73,29 @@ export class SpaceParticleGenerator extends ParticleGenerator {
     scene: Scene;
     ps: ParticleSystem;
     units: ScaledUnits;
-    constructor(scene: Scene, ps: ParticleSystem, units: ScaledUnits, radius = 0.3, color = "#ff0000") {
+    generator: IParticleGenerator;
+    constructor(scene: Scene, ps: ParticleSystem, units: ScaledUnits, generator: IParticleGenerator,  radius = 0.3, color = "#ff0000") {
         super();
         this.scene = scene;
         this.ps = ps;
         this.units = units;
+        this.generator = generator;
+    }
+    setGenerator(generator: ParticleGenerator) {
+        this.generator = generator;
     }
     generate(): IParticle {
-        const particle = super.generate();
+        let particle: IParticle;
+        if (this.generator) {
+            particle = this.generator.generate();    
+        } else {
+            particle = super.generate();
+        }
+
         const space_particle = new SpaceParticle(this.scene, particle.getMass(), this.ps, this.units);
+        const pos = particle.getPosition().add(this.position);
         space_particle.setVelocity(particle.getVelocity().x, particle.getVelocity().y, particle.getVelocity().z);
-        space_particle.setPosition(particle.getPosition().x, particle.getPosition().y, particle.getPosition().z);
+        space_particle.setPosition(pos.x, pos.y, pos.z);
         space_particle.setLifespan(particle.getLifespan());
         return space_particle;
     }
@@ -94,7 +108,7 @@ export class PhotonGenerator extends VisibleParticleGenerator {
         super(scene, radius, color);
         this.mass_max = 0;
         this.mass_min = 0;
-        this.lifespan = 10;
+        this.lifespan = 0;
     }
     setSpeedOfLight(s: number) {
         this.speedOfLight = s;

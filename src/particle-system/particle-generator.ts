@@ -1,4 +1,4 @@
-import { Vector3, Scene } from "three";
+import { Vector3, Scene, Matrix4 } from "three";
 import { IParticle, Particle } from "./particle-system";
 import { VisibleParticle } from "./visible-particle";
 
@@ -61,9 +61,41 @@ export class ParticleGenerator implements IParticleGenerator {
         this.mass_min = mass_min;
         this.lifespan = lifespan;
     }
-    
 }
 
+export class EllipticalParticleGenerator extends ParticleGenerator {
+    velocity_generator: TangentialVelocityGenerator;
+    position_generator: EllipticalPositionGenerator;
+    center: Vector3;
+    axis: Vector3;
+    mag: number;
+    constructor(a: number, b: number, center: Vector3, x: Vector3, y: Vector3, z: Vector3, vel: number) {
+        super();
+        this.velocity_generator = new TangentialVelocityGenerator();
+        this.position_generator = new EllipticalPositionGenerator(a, b, center, x, y, z);
+        this.center = center;
+        this.axis = z;
+        this.mag = vel;
+        console.log(vel);
+    }
+    setWidth(width: number) {
+        this.position_generator.setWidth(width);
+    }
+    generate(): IParticle {
+        const mass = this.mass_min + Math.random() * (this.mass_max - this.mass_min);
+        const particle = new Particle(mass);
+        const pos = this.position_generator.generate();
+        this.velocity_generator.parameters(this.center, pos, this.axis);
+        const vel = this.velocity_generator.generate();
+        vel.multiplyScalar(this.mag);
+        particle.setVelocity(vel.x, vel.y, vel.z);
+        particle.setPosition(pos.x, pos.y, pos.z);
+        // console.log(vel.x, vel.y, vel.z);
+        // console.log(pos.x, pos.y, pos.z);
+        particle.setLifespan(this.lifespan);
+        return particle;
+    }
+}
 
 export class VisibleParticleGenerator extends ParticleGenerator {
     scene: Scene;
@@ -91,7 +123,7 @@ export interface IVectorGenerator {
     generate(): Vector3;
 }
 
-export class FixedPositionGenerator implements IVectorGenerator{
+export class FixedPositionGenerator implements IVectorGenerator {
     pos: Vector3;
     constructor(fix: Vector3) {
         this.pos = fix;
@@ -99,26 +131,78 @@ export class FixedPositionGenerator implements IVectorGenerator{
     generate(): Vector3 {
         return this.pos;
     }
-    
+
 }
 
 /**
  * Generates positions as defined by an ellipse of certain width
  */
 export class EllipticalPositionGenerator implements IVectorGenerator {
+    transformMatrix = new Matrix4();
+    transformMatrixInv = new Matrix4();
+    A: number;
+    B: number;
+    width = 0;
+    constructor(A: number, B: number, C?: Vector3, x?: Vector3, y?: Vector3, z?: Vector3) {
+        this.A = A;
+        this.B = B;
+        if (x !== undefined && y !== undefined && z !== undefined) {
+            this.transformMatrix.makeBasis(x, y, z);
+            this.transformMatrix.transpose();
+        }
+        if (C) {
+            C.applyMatrix4(this.transformMatrixInv.getInverse(this.transformMatrix));
+            this.transformMatrix.setPosition(C);
+        }
+        this.transformMatrixInv.getInverse(this.transformMatrix);
+    }
+    setWidth(width: number) {
+        this.width = width;
+    }
     generate(): Vector3 {
         const pos = new Vector3();
-        return pos;
+        var theta = Math.PI * 2 * Math.random();
+        // Would still be three coordinate axes
+        var position = new Vector3((this.A + this.width * Math.random()) * Math.cos(theta),
+            (this.width * Math.random() + this.B) * Math.sin(theta));
+        position.applyMatrix4(this.transformMatrixInv);
+        return position;
+    }
+}
+
+/**
+ * Generates unit velocities tangential to a vector 
+ */
+export class TangentialVelocityGenerator implements IVectorGenerator {
+    center: Vector3;
+    position: Vector3;
+    axis: Vector3;
+    /**
+     * 
+     * @param center The start of the vector
+     * @param position The end of the vector
+     * @param axis The axis perpendicular to which velocities will be generated
+     */
+    parameters(center: Vector3, position: Vector3, axis: Vector3) {
+        this.position = position;
+        this.center = center;
+        this.axis = axis.normalize();
+    }
+    generate(): Vector3 {
+        // get a perpendicular vector from the current vector
+        const dir = new Vector3().subVectors(this.position, this.center).normalize();
+        const vel = new Vector3().crossVectors(dir, this.axis);
+        return vel;
     }
 }
 
 /**
  * Generates random velocities with components between 0 and 1
  */
-export class RandomVelocityGenerator implements IVectorGenerator{
+export class RandomVelocityGenerator implements IVectorGenerator {
     generate(): Vector3 {
-        const vel = new Vector3(Math.random(), Math.random(), Math.random());
-        return vel;    
+        const vel = new Vector3(-1 + 2 * Math.random(), -1 + 2 * Math.random(), 1 + 2 * Math.random());
+        return vel;
     }
 }
 
@@ -147,8 +231,8 @@ export class ArcVelocityGenerator implements IVectorGenerator {
         this.min_vel = min;
         this.max_vel = max;
     }
-    
-    generate() :Vector3 {
+
+    generate(): Vector3 {
         if (this.min_vel == 0 && this.max_vel == 0) {
             return new Vector3();
         }
@@ -156,7 +240,7 @@ export class ArcVelocityGenerator implements IVectorGenerator {
         const mag = this.min_vel + Math.abs(this.max_vel - this.min_vel) * Math.random();
         const vel = this.dir.clone().applyAxisAngle(this.axis, theta);
         vel.multiplyScalar(mag);
-        return vel;        
+        return vel;
     }
 }
 
