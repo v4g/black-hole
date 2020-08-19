@@ -46,7 +46,7 @@ export class BlackHoleSystem {
 
     initializeParticleGenerator(scene: Scene) {
         const radius = this.getSchwarzchildRadius();
-        const generator = new EllipticalParticleGenerator(0.8 * radius, 0.8 * radius, this.blackHole.getPosition(),
+        const generator = new EllipticalParticleGenerator(1.5 * radius, 1.5 * radius, this.blackHole.getPosition(),
             new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1), this.units.getScaledVelocity(this.MIN_ACCRETION_DISK_VEL));
         generator.setParameters(0.0001, 0.00015, 0);
         generator.setWidth(0.2 * radius);

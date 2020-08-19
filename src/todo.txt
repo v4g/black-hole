@@ -6,9 +6,13 @@ Photon emission:
     Emit photons from each particle
         N Photons in random directions 
         X Photons added to the particle system 
+        A photon always travels at the same speed, the speed of light. From the point of view of the viewer
+        that is emitting a photon, it will travel m/s and the same for a distant observer. This means that when
+        the photon has travelled x metres, space will expand for the emitter and time will shorten. That means he will
+        observe everything going fast forward
         Photons collide with the viewing plane, set a permanent particle there
         Make all other particles invisible
-        Make units consistent
+        X Make units consistent
 Optimization:
     Only a snapshot of the black hole can be obtained by simulating nothing else but photons
     The speed of the simulation would have to be slowed down
