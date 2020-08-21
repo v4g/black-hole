@@ -1,5 +1,6 @@
 import { IParticle, ParticleDerivative } from "./particle-system/particle-system";
 import { Vector3, TorusBufferGeometry } from "three";
+import { SpaceParticle } from "./space-particle";
 
 /**
  * This class will take a photograph of the scene on a plane
@@ -8,16 +9,27 @@ import { Vector3, TorusBufferGeometry } from "three";
  * the plate
  */
 export class Photograph {
-    constructor(width = 1.0, height = 1.0, position = new Vector3(), normal = new Vector3()) {
-        
+    plate: PhotographicPlate;
+    constructor(plate: PhotographicPlate) {
+        this.plate = plate;
     }
     getPhoto() {
         // return the image on the plate
     }
+
     // Updates the plate by checking if any of the particles have collided
     // with the plate
-    update(particles: Array<IParticle>, derivatives: ParticleDerivative) {
-        
+    update(particles: Array<IParticle>) {
+        particles.forEach(p => {
+            if (p.getType() == SpaceParticle.PHOTON) {
+                const from = p.getPosition();
+                const to = new Vector3().addVectors(p.getPosition(), p.getVelocity());
+                const intersection = this.plate.intersectsWithPlate(from, to);
+                if (intersection.x != Number.POSITIVE_INFINITY) {
+                    console.log("Intersected at", intersection.x, intersection.y, intersection.z);
+                }
+            }
+        });
     }
 }
 
@@ -36,7 +48,7 @@ export class PhotographicPlate {
      * Returns the point at which this plate intersected with the Line
      * Returns inf, inf if it didn't intersect
      */
-    intersectsWithPlate(from: Vector3, to: Vector3) : Vector3 {
+    intersectsWithPlate(from: Vector3, to: Vector3): Vector3 {
         let intersection = new Vector3(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
         // Calculate if both of these points are on either side of the plane
         // If they are, the ratio of their normals give the ratios on either side

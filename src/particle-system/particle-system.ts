@@ -1,6 +1,8 @@
 import { Vector3 } from "three";
 
 export interface IParticle {
+    getType(): number;
+    setType(type: number): number;
     getMass(): number;
     setMass(mass: number): any;
     getVelocity(): Vector3;
@@ -22,13 +24,22 @@ export class Particle implements IParticle {
     private radius: number;
     private lifeSpan: number;
     private age: number;
-    constructor(mass = 1, radius=1, lifespan=0) {
+    private type: number;
+    constructor(mass = 1, radius=1, lifespan=0, type=1) {
         this.velocity = new Vector3();
         this.position = new Vector3();
         this.mass = mass;
         this.radius = radius;
         this.lifeSpan = lifespan;
         this.age = 0;
+        this.type = type;
+    }
+    getType(): number {
+        return this.type;
+    }
+    setType(type: number): number {
+        this.type = type;
+        return type;
     }
     update() {
     }

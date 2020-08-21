@@ -21,6 +21,12 @@ export class VisibleParticle implements IParticle {
         this.scene = scene;
         this.scene.add(this.mesh);
     }
+    setType(type: number): number {
+        return this.particle.setType(type);
+    }
+    getType(): number {
+        return this.particle.getType();
+    }
     update() {
     }
     getLifespan(): number {

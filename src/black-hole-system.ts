@@ -6,6 +6,7 @@ import { Vector3, Scene } from "three";
 import { ScaledUnits } from "./scaled-units";
 import { VisibleParticle } from "./particle-system/visible-particle";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
+import { Photograph, PhotographicPlate } from "./photograph";
 
 /**
  * This class will encapsulate all the things needed to get the black
@@ -21,6 +22,7 @@ export class BlackHoleSystem {
     particleGenerator: IParticleGenerator;
     particleGenerator2: IParticleGenerator;
     units: ScaledUnits;
+    photograph: Photograph;
     count = 0;
     constructor(scene: Scene) {
         this.ps = new BlackHoleParticleSystem();
@@ -34,6 +36,8 @@ export class BlackHoleSystem {
         this.ps.addParticle(this.blackHole);
         this.initializeParticleGenerator(scene);
         this.getSchwarzchildRadius();
+        const photoPlate = new PhotographicPlate(100, 100, new Vector3(0, 0, 100), new Vector3(0, 0, 1));
+        this.photograph = new Photograph(photoPlate);
     }
 
     getSchwarzchildRadius() {
@@ -76,6 +80,7 @@ export class BlackHoleSystem {
             this.count++;
         }
         this.ps.update(time_step);
+        this.photograph.update(this.ps.particles);
     }
 
     scaleVelocity(particle: IParticle) {

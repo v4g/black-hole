@@ -115,6 +115,7 @@ export class VisibleParticleGenerator extends ParticleGenerator {
         visible_particle.setVelocity(particle.getVelocity().x, particle.getVelocity().y, particle.getVelocity().z);
         visible_particle.setPosition(particle.getPosition().x, particle.getPosition().y, particle.getPosition().z);
         visible_particle.setLifespan(particle.getLifespan());
+        visible_particle.setType(particle.getType());
         // visible_particle.setPosition(Math.random() * 100, Math.random() * 100 , 0);
         // console.log(visible_particle.getPosition().x, visible_particle.getPosition().y, visible_particle.getPosition().z);
         return visible_particle;

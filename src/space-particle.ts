@@ -13,12 +13,19 @@ export class SpaceParticle implements IParticle {
     particle: IParticle;
     generator: IParticleGenerator;
     ps: ParticleSystem;
+    static readonly PHOTON = 1010;
     constructor(scene: Scene, mass: number, ps: ParticleSystem, units: ScaledUnits) {
         this.particle = new VisibleParticle(scene, "p",0.21, "#ff0000", mass);
         const photonGenerator = new PhotonGenerator();
         photonGenerator.setSpeedOfLight(units.getScaledVelocity(photonGenerator.speedOfLight));
         this.generator = new VisibleParticleGenerator(scene, 0.1, "#ffff00", photonGenerator);
         this.ps = ps;
+    }
+    setType(type: number): number {
+        return this.particle.setType(type);
+    }
+    getType(): number {
+        return this.particle.getType();
     }
     /**
      * Generate photons
@@ -100,6 +107,7 @@ export class SpaceParticleGenerator extends ParticleGenerator {
         space_particle.setVelocity(particle.getVelocity().x, particle.getVelocity().y, particle.getVelocity().z);
         space_particle.setPosition(pos.x, pos.y, pos.z);
         space_particle.setLifespan(particle.getLifespan());
+        space_particle.setType(particle.getType());
         return space_particle;
     }
 }
@@ -113,6 +121,11 @@ export class PhotonGenerator extends ParticleGenerator {
         this.mass_max = 0;
         this.mass_min = 0;
         this.lifespan = 0;
+    }
+    generate(): IParticle {
+        const particle = super.generate();
+        particle.setType(SpaceParticle.PHOTON);
+        return particle;
     }
     setSpeedOfLight(s: number) {
         this.speedOfLight = s;
