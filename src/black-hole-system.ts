@@ -36,8 +36,10 @@ export class BlackHoleSystem {
         this.ps.addParticle(this.blackHole);
         this.initializeParticleGenerator(scene);
         this.getSchwarzchildRadius();
-        const photoPlate = new PhotographicPlate(100, 100, new Vector3(0, 0, 100), new Vector3(0, 0, 1));
+        const photoPlate = new PhotographicPlate(100, 100, 100, 100, new Vector3(0, 0, 100), new Vector3(0, 0, 1));
         this.photograph = new Photograph(photoPlate);
+        this.photograph.getPhoto().position.set(0, 0, 10);
+        scene.add(this.photograph.getPhoto());
     }
 
     getSchwarzchildRadius() {
