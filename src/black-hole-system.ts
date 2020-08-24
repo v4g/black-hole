@@ -72,17 +72,17 @@ export class BlackHoleSystem {
 
     }
     update(time_step: number) {
-        if (Math.random() > 0.6 && this.count < 100) {
-            const particle = this.particleGenerator.generate();
-            // this.scaleVelocity(particle);
-            this.ps.addParticle(particle);
-            // const particle2 = this.particleGenerator2.generate();
-            // this.scaleVelocity(particle2);
-            // this.ps.addParticle(particle2);
-            this.count++;
+        const N_ITERATIONS = 100;
+        for (let i = 0; i < N_ITERATIONS; i++) {
+
+            if (Math.random() > 0.6 && this.count < 100) {
+                const particle = this.particleGenerator.generate();
+                this.ps.addParticle(particle);
+                this.count++;
+            }
+            this.ps.update(time_step);
+            this.photograph.update(this.ps.particles, time_step);
         }
-        this.ps.update(time_step);
-        this.photograph.update(this.ps.particles);
     }
 
     scaleVelocity(particle: IParticle) {

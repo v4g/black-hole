@@ -25,7 +25,7 @@ export class Particle implements IParticle {
     private lifeSpan: number;
     private age: number;
     private type: number;
-    constructor(mass = 1, radius=1, lifespan=0, type=1) {
+    constructor(mass = 1, radius = 1, lifespan = 0, type = 1) {
         this.velocity = new Vector3();
         this.position = new Vector3();
         this.mass = mass;
@@ -109,15 +109,15 @@ export class GravityForce implements IForce {
      * @m Number of meters that go into the new unit of distance
      * @s Number of seconds that go into the new unit of time
      */
-    static calculate(kg:number, m:number, s:number):number {
-        const g = this.GRAVITATION_CONSTANT * kg * s * s / ( m * m * m);
+    static calculate(kg: number, m: number, s: number): number {
+        const g = this.GRAVITATION_CONSTANT * kg * s * s / (m * m * m);
         return g;
     }
     set G(g: number) {
         this._G = g;
     }
 
-    get G():number {
+    get G(): number {
         return this._G;
     }
 }
@@ -159,22 +159,22 @@ export class ParticleDerivative {
         return this.derivative[i];
     }
     print() {
-        this.derivative.forEach((p, i)=>{
-            console.log("Particle "+i);
-            console.log("Velocity ",p[0], p[1], p[2]);
-            console.log("Acceleration ",p[3], p[4], p[5]);
-            
+        this.derivative.forEach((p, i) => {
+            console.log("Particle " + i);
+            console.log("Velocity ", p[0], p[1], p[2]);
+            console.log("Acceleration ", p[3], p[4], p[5]);
+
         }, this);
     }
     destroy() {
-        this.derivative.forEach((p)=>{
+        this.derivative.forEach((p) => {
             p = [];
         });
         this.derivative = [];
     }
     clone(): ParticleDerivative {
         const copy = new ParticleDerivative();
-        this.derivative.forEach((p, i)=>{
+        this.derivative.forEach((p, i) => {
             copy.addParticle();
             copy.add(i, p);
         });
@@ -219,7 +219,7 @@ export class ParticleSystem {
     }
 
     postUpdate() {
-        this.particles.forEach(p=> {
+        this.particles.forEach(p => {
             p.update();
         }, this);
     }
@@ -230,18 +230,20 @@ export class ParticleSystem {
      * @param time_step 
      */
     updateParticleLives(time_step: number) {
-        for (let i = 0 ; i < this.particles.length; i++) {
+        for (let i = 0; i < this.particles.length; i++) {
             let particle = this.particles[i];
             particle.setAge(particle.getAge() + time_step);
             if (particle.getLifespan() > 0 && particle.getAge() > particle.getLifespan()) {
                 particle.onDeath();
                 this.removeParticle(i);
             }
-            if (particle.getPosition().x > 50 || particle.getPosition().y > 50 || particle.getPosition().x < -50 || particle.getPosition().y < -50) {
+            if (particle.getPosition().x > 50 || particle.getPosition().y > 50
+                || particle.getPosition().x < -50 || particle.getPosition().y < -50
+                || particle.getPosition().z < 0 || particle.getPosition().z > 300) {
                 particle.onDeath();
                 this.removeParticle(i);
-            }    
-        }    
+            }
+        }
     }
 
 
@@ -250,9 +252,9 @@ export class ParticleSystem {
         this.particles.forEach((particle, i) => {
             const pos = particle.getPosition();
             const v = particle.getVelocity();
-            state.push(new Array<number>(pos.x,pos.y,pos.z,v.x,v.y,v.z));
+            state.push(new Array<number>(pos.x, pos.y, pos.z, v.x, v.y, v.z));
         }, this);
-        return state;    
+        return state;
     }
     restoreState(state: Array<Array<number>>) {
         this.particles.forEach((particle, i) => {
@@ -263,7 +265,7 @@ export class ParticleSystem {
     updateMidPoint(time_step: number) {
         const state = this.storeState();
         this.calculateDerivative();
-        this.derivative.scale(time_step/2);
+        this.derivative.scale(time_step / 2);
         // console.log('========Intermediate=======');
         // this.derivative.print();
         this.updateAllParticles();
@@ -277,11 +279,11 @@ export class ParticleSystem {
     updateRK4(time_step: number) {
         const state = this.storeState();
         this.calculateDerivative();
-        this.derivative.scale(time_step/2);
+        this.derivative.scale(time_step / 2);
         const k1 = this.derivative.clone();
         this.updateAllParticles();
         this.calculateDerivative();
-        this.derivative.scale(time_step/2);
+        this.derivative.scale(time_step / 2);
         const k2 = this.derivative.clone();
         this.restoreState(state);
         this.updateAllParticles();
@@ -294,18 +296,18 @@ export class ParticleSystem {
         this.derivative.scale(time_step);
         const k4 = this.derivative.clone();
         this.restoreState(state);
-        k1.scale(1/3);
+        k1.scale(1 / 3);
         this.derivative = k1;
         this.updateAllParticles();
-        k2.scale(2/3);
+        k2.scale(2 / 3);
         this.derivative = k2;
         this.updateAllParticles();
-        k3.scale(1/3);
+        k3.scale(1 / 3);
         this.derivative = k3;
         this.updateAllParticles();
-        k4.scale(1/6);
+        k4.scale(1 / 6);
         this.derivative = k4;
-        this.updateAllParticles();        
+        this.updateAllParticles();
     }
 
     calculateDerivative() {
@@ -337,18 +339,18 @@ export class ParticleSystem {
 
     print() {
         console.log("----Particle System-----");
-        
+
         this.particles.forEach((particle, i) => {
             console.log("--------------------------");
             const pos = particle.getPosition();
             const v = particle.getVelocity();
-            console.log("Particle "+i);
+            console.log("Particle " + i);
             console.log("Mass ", particle.getMass());
-            console.log("Position ",pos.x, pos.y, pos.z);
-            console.log("Velocity ",v.x, v.y, v.z);
+            console.log("Position ", pos.x, pos.y, pos.z);
+            console.log("Velocity ", v.x, v.y, v.z);
         }, this);
         console.log("------------X-----------");
-        
+
     }
 
     printDerivative() {

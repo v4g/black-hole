@@ -16,6 +16,9 @@ Photon emission:
 Optimization:
     Only a snapshot of the black hole can be obtained by simulating nothing else but photons
     The speed of the simulation would have to be slowed down
+    The picture that we get is very blurred since we are not using a pin hole camera but a giant
+    plate that will not give us any  sharpness. Using a pinhole would mean rejecting almost all photons
+    that are emitted.
 Investigate:
     Simulation is unstable when particles get too close to the black hole. Why? If its just acceleration, a 2nd order method should suffice?
 

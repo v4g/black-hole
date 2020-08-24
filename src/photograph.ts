@@ -27,8 +27,8 @@ export class Photograph {
 
     // Updates the plate by checking if any of the particles have collided
     // with the plate
-    update(particles: Array<IParticle>) {
-        this.plate.expose(particles);
+    update(particles: Array<IParticle>, deltaT: number) {
+        this.plate.expose(particles, deltaT);
         this.image.needsUpdate = true;
     }
 }
@@ -55,27 +55,28 @@ export class PhotographicPlate {
     }
     getImage(): Uint8Array { return this.data; }
 
-    expose(particles: Array<IParticle>) {
+    expose(particles: Array<IParticle>, deltaT: number) {
         const quarternion = new Quaternion().setFromUnitVectors(this.normal, new Vector3(0, 0, 1));
-        const color = [255, 0, 0, 0];
+        const color = [16, 0, 0, 0];
         particles.forEach(p => {
             if (p.getType() == SpaceParticle.PHOTON) {
                 const from = p.getPosition();
-                const to = new Vector3().addVectors(p.getPosition(), p.getVelocity());
+                const to = new Vector3().addVectors(p.getPosition(), p.getVelocity().multiplyScalar(deltaT));
                 const intersection = this.intersectsWithPlate(from, to);
                 if (intersection.x != Number.POSITIVE_INFINITY) {
-                    console.log("Intersected at", intersection.x, intersection.y, intersection.z);
                     const relativeCoordinates = intersection.sub(this.position);
                     relativeCoordinates.applyQuaternion(quarternion);
                     relativeCoordinates.x = this.width / 2 + relativeCoordinates.x * this.resolution.x / this.width;
                     relativeCoordinates.y = this.height / 2 + relativeCoordinates.y * this.resolution.y / this.height;
                     relativeCoordinates.x = 4 * Math.round(relativeCoordinates.x);
                     relativeCoordinates.y = 4 * Math.round(relativeCoordinates.y);
-                    console.log(relativeCoordinates.x, relativeCoordinates.y, relativeCoordinates.z);
                     const index = relativeCoordinates.y * this.resolution.x + relativeCoordinates.x;
                     color.forEach((i, j) => {
-                        this.data[index + j] = i;
-                    })
+                        this.data[index + j] = Math.min(this.data[index + j]+i, 255);
+                        // this.data[index + j] += i;
+
+                    });
+                    // this.data[index + 3] = Math.min(this.data[index+3] + alpha, 255);
                 }
             }
         });
