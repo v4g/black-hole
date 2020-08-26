@@ -1,12 +1,16 @@
 import { BlackHoleParticleSystem } from "./black-hole-particle-system";
-import { GravityForce, IParticle } from "./particle-system/particle-system";
-import { IParticleGenerator, VisibleParticleGenerator, ArcVelocityGenerator, EllipticalPositionGenerator, EllipticalParticleGenerator } from "./particle-system/particle-generator";
 import { SpaceParticleGenerator, PhotonGenerator } from "./space-particle";
 import { Vector3, Scene } from "three";
 import { ScaledUnits } from "./scaled-units";
-import { VisibleParticle } from "./particle-system/visible-particle";
+import { VisibleParticle } from "./particle-system/particle/visible-particle";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
 import { Photograph, PhotographicPlate } from "./photograph";
+import { GravityForce } from "./particle-system/forces/gravity-force";
+import { IParticle } from "./particle-system/particle/particle";
+import { IParticleGenerator } from "./particle-system/generator/i-particle-generator";
+import { EllipticalParticleGenerator } from "./particle-system/generator/elliptical-particle-generator";
+import { VisibleParticleGenerator } from "./particle-system/generator/visible-particle-generator";
+import { ArcVelocityGenerator } from "./particle-system/generator/velocity-generators/arc-velocity-generator";
 
 /**
  * This class will encapsulate all the things needed to get the black
@@ -56,7 +60,7 @@ export class BlackHoleSystem {
             new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1), this.units.getScaledVelocity(this.MIN_ACCRETION_DISK_VEL));
         generator.setParameters(0.0001, 0.00015, 0);
         generator.setWidth(0.2 * radius);
-        const particleGenerator = new SpaceParticleGenerator(scene, this.ps, this.units, generator, 0.1);
+        const particleGenerator = new SpaceParticleGenerator(scene, this.ps, this.units, generator);
         this.particleGenerator = particleGenerator;
         this.particleGenerator.setPosition(new Vector3(0, 0, 0));
         this.blackHole.addLightSource("#ffffff");

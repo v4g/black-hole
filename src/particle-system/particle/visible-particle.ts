@@ -1,5 +1,5 @@
-import { IParticle, Particle } from "./particle-system";
 import { SphereBufferGeometry, MeshBasicMaterial, Mesh, Scene, Vector3, PointLight } from "three";
+import { IParticle, Particle } from "./particle";
 
 export class VisibleParticle implements IParticle {
 

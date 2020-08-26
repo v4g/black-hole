@@ -48,7 +48,6 @@ export class Boilerplate {
     onWindowResize() {
         var width = window.innerWidth;
         var height = window.innerHeight;
-        console.log("Resize was called", width, height);
         this.camera.aspect = width /height;
         this.camera.updateProjectionMatrix();
         this.aspectRatio = width / height;
