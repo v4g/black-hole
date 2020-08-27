@@ -1,10 +1,10 @@
 import { BlackHoleParticleSystem } from "./black-hole-particle-system";
-import { SpaceParticleGenerator, PhotonGenerator } from "./space-particle";
+import { SpaceParticleGenerator } from "./space-particle";
 import { Vector3, Scene } from "three";
 import { ScaledUnits } from "./scaled-units";
 import { VisibleParticle } from "./particle-system/particle/visible-particle";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
-import { Photograph, PhotographicPlate } from "./photograph";
+import { Photograph, PhotographicPlate } from "./raytracing/photograph";
 import { GravityForce } from "./particle-system/forces/gravity-force";
 import { IParticle } from "./particle-system/particle/particle";
 import { IParticleGenerator } from "./particle-system/generator/i-particle-generator";

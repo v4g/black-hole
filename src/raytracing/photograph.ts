@@ -1,6 +1,6 @@
-import { IParticle } from "./particle-system/particle-system";
-import { Vector3, Quaternion, Vector2, Texture, DataTexture, RGBFormat, Mesh, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, RGBAFormat } from "three";
-import { SpaceParticle } from "./space-particle";
+import { Vector3, Quaternion, Vector2, Texture, DataTexture, Mesh, MeshBasicMaterial, PlaneGeometry, RGBAFormat } from "three";
+import { SpaceParticle } from "../space-particle";
+import { IParticle } from "../particle-system/particle/particle";
 
 /**
  * This class will take a photograph of the scene on a plane
