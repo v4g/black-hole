@@ -16,6 +16,7 @@ export interface IParticle {
     setAge(a: number): number;
     onDeath(): any;
     update(): any;
+    copy(p: IParticle): any;
 }
 export class Particle implements IParticle {
     private velocity: Vector3;
@@ -33,6 +34,15 @@ export class Particle implements IParticle {
         this.lifeSpan = lifespan;
         this.age = 0;
         this.type = type;
+    }
+    copy(p: IParticle) {
+        this.velocity = p.getVelocity();
+        this.position = p.getPosition();
+        this.age = p.getAge();
+        this.mass = p.getMass();
+        this.radius = p.getRadius();
+        this.lifeSpan = p.getLifespan();
+        this.type = p.getType();
     }
     getType(): number {
         return this.type;

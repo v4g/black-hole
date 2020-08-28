@@ -55,6 +55,12 @@ export class PhotographicPlate {
     }
     getImage(): Uint8Array { return this.data; }
 
+    /**
+     * Exposes the plate to photons. Any photons that are intersecting with the 
+     * plate at the given time will be registered with a color
+     * @param particles 
+     * @param deltaT 
+     */
     expose(particles: Array<IParticle>, deltaT: number) {
         const quarternion = new Quaternion().setFromUnitVectors(this.normal, new Vector3(0, 0, 1));
         const color = [16, 0, 0, 0];
@@ -72,13 +78,25 @@ export class PhotographicPlate {
                     relativeCoordinates.y = 4 * Math.round(relativeCoordinates.y);
                     const index = relativeCoordinates.y * this.resolution.x + relativeCoordinates.x;
                     color.forEach((i, j) => {
-                        this.data[index + j] = Math.min(this.data[index + j]+i, 255);
+                        this.data[index + j] = Math.min(this.data[index + j] + i, 255);
                         // this.data[index + j] += i;
 
                     });
                     // this.data[index + 3] = Math.min(this.data[index+3] + alpha, 255);
                 }
             }
+        });
+    }
+    /**
+     * Sets the pixel at (x,y) to this color
+     * @param color A byte array containing the color in RGBA format
+     */
+    setPixel(x: number, y: number, color: number[]) {
+        x = Math.floor(x);
+        y = Math.floor(y);
+        const index = y * this.resolution.x + x;
+        color.forEach((i, j) => {
+            this.data[index + j] = Math.min(this.data[index + j] + i, 255);
         });
     }
     /**

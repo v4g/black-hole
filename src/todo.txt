@@ -3,16 +3,24 @@ The particles around the black hole aren't forming a spiral. This is probably be
     Need to come up with a fast way for the particles to also exert gravity on each other. 
     Distance calculation would probably be the slowest thing    
 Photon emission:
-    Emit photons from each particle
+    X Emit photons from each particle
         N Photons in random directions 
         X Photons added to the particle system 
         A photon always travels at the same speed, the speed of light. From the point of view of the viewer
         that is emitting a photon, it will travel m/s and the same for a distant observer. This means that when
         the photon has travelled x metres, space will expand for the emitter and time will shorten. That means he will
         observe everything going fast forward
-        Photons collide with the viewing plane, set a permanent particle there
+        X Photons collide with the viewing plane, set a permanent particle there
         Make all other particles invisible
         X Make units consistent
+    Reverse photon emission
+        Photon will now be emmitted by the camera. This is because my approach would need all photons to pass through
+        a pin hole to get a clear image. That can't happen, it would take too long.
+        Emit photons from the plate that pass through a particular point (the pin hole)
+        For the desired resolution, shoot a photon from each pixel
+        Put the photon in a particle system
+        Don't need reflections
+        Would probably need red-shift.
 Optimization:
     Only a snapshot of the black hole can be obtained by simulating nothing else but photons
     The speed of the simulation would have to be slowed down
