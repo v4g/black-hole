@@ -69,6 +69,7 @@ export class VisibleParticle implements IParticle, IRayTraceable {
     getPosition(): Vector3 { return this.position() };
     setPosition(x: number, y: number, z: number): Vector3 {
         const pos = this.position(new Vector3(x, y, z));
+        this.particle.setPosition(x, y, z);
         return pos;
     };
     setVelocity(x: number, y: number, z: number): Vector3 {

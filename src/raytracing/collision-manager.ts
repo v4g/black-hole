@@ -43,7 +43,7 @@ export class RayTracingCollisionManager {
                 // the desired color. What happens in case of refractions?
                 if(o.intersectsWithRay(from, to, r.getRadius())) {
                     r.onDeath();
-                    const color = [255, 0, 0, 0];
+                    const color = [16, 0, 0, 0];
                     console.log("Collision has occured");
                     this.raytracer.setPixel(r.getOriginPixel().x, r.getOriginPixel().y, color, new Vector3());
                 }

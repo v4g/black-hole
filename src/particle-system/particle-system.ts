@@ -100,10 +100,11 @@ export class ParticleSystem {
 
     postUpdate() {
         for (let i = 0; i < this.particles.length; i++) {
-            let p = this.particles[this.particles.length - i - 1];
+            let index = this.particles.length - i - 1;
+            let p = this.particles[index];
             p.update();
             if (!p.isAlive()) {
-                this.removeParticle(i);
+                this.removeParticle(index);
             }
         }
     }

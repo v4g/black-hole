@@ -51,7 +51,7 @@ export class BlackHoleSystem {
         // this.photograph.getPhoto().position.set(0, 0, 10);
         // scene.add(this.photograph.getPhoto());
         
-        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 20), new Vector3(0, 0, -1), Math.PI / 4, 2, this.units.getScaledVelocity(299792458));
+        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 20), new Vector3(0, 0, -1), Math.PI / 4, 4, this.units.getScaledVelocity(299792458));
         this.obstacles = new Array<IRayTraceable>();
         this.customizer = new ParticleSystemCustomizer(this.ps, this.raytracer, this.obstacles, 0);
         this.raytracer.setCustomizer(this.customizer)

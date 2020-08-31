@@ -50,10 +50,21 @@ export class Particle implements IParticle, IRayTraceable {
     intersectsWithRay(from: Vector3, to: Vector3, radius: number): boolean {
         // Calculate the perpendicular distance of this line 
         // with the particle and see if it is inside the radius
-        const line = new Vector3().subVectors(to, from).normalize();
-        const toRadius = this.getPosition().sub(from);
-        const x_proj = toRadius.dot(line);
-        const proj = toRadius.sub(line.multiplyScalar(x_proj));
+        const AB = new Vector3().subVectors(to, from).normalize();
+        const AO = this.getPosition().sub(from);
+        const BO = this.getPosition().sub(to);
+        const AOProjAB = AO.dot(AB);
+        const BOProjAB = BO.dot(AB);
+        if (AOProjAB * BOProjAB > 0) {
+            // Both projections on the same side
+            // Check if reducing by the radius makes them on opposite sides
+            let lesserProjection = Math.min(Math.abs(AOProjAB), Math.abs(BOProjAB));
+            let biggerProjection = Math.max(Math.abs(AOProjAB), Math.abs(BOProjAB));
+            lesserProjection = lesserProjection - this.radius - radius;
+            if (lesserProjection * biggerProjection > 0) 
+                return false;
+        }
+        const proj = AO.sub(AB.multiplyScalar(AOProjAB));
         if (proj.length() <= this.getRadius() + radius)
             return true;
         return false;
