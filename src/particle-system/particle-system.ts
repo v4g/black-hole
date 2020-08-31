@@ -124,7 +124,7 @@ export class ParticleSystem {
             }
             if (particle.getPosition().x > 50 || particle.getPosition().y > 50
                 || particle.getPosition().x < -50 || particle.getPosition().y < -50
-                || particle.getPosition().z < 0 || particle.getPosition().z > 300) {
+                || particle.getPosition().z < -50 || particle.getPosition().z > 300) {
                 particle.onDeath();
                 this.removeParticle(i);
             }

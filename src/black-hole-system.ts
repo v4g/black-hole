@@ -53,7 +53,7 @@ export class BlackHoleSystem {
         // this.photograph.getPhoto().position.set(0, 0, 10);
         // scene.add(this.photograph.getPhoto());
         
-        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 20), new Vector3(0, 0, -1), Math.PI / 3, 8, this.units.getScaledVelocity(299792458));
+        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 30), new Vector3(0, 0, -1), Math.PI / 3, 8, this.units.getScaledVelocity(299792458));
         this.obstacles = new Array<IRayTraceable>();
         this.customizer = new ParticleSystemCustomizer(this.ps, this.raytracer, this.obstacles, 0);
         this.raytracer.setCustomizer(this.customizer)
@@ -73,9 +73,9 @@ export class BlackHoleSystem {
     initializeParticleGenerator(scene: Scene) {
         const radius = this.getSchwarzchildRadius();
         const generator = new EllipticalParticleGenerator(1.5 * radius, 1.5 * radius, this.blackHole.getPosition(),
-            new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1), this.units.getScaledVelocity(this.MIN_ACCRETION_DISK_VEL));
+            new Vector3(1, 0, 0), new Vector3(0, 0, 1), new Vector3(0, -1, 0), this.units.getScaledVelocity(this.MIN_ACCRETION_DISK_VEL));
         generator.setParameters(0.0001, 0.00015, 0);
-        generator.setWidth(0.2 * radius);
+        generator.setWidth(1 * radius);
         const particleGenerator = new SpaceParticleGenerator(scene, this.ps, this.units, generator);
         this.particleGenerator = particleGenerator;
         this.particleGenerator.setPosition(new Vector3(0, 0, 0));
@@ -106,7 +106,7 @@ export class BlackHoleSystem {
             this.customizer.setTimeStep(time_step);
             this.raytracer.update();
             this.totalTime += time_step;
-            if (this.totalTime - this.timeBefore > 100) {
+            if (this.totalTime - this.timeBefore > 500) {
                 this.raytracer.emitPhotons();
                 this.timeBefore = this.totalTime;
             }
