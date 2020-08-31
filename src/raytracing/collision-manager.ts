@@ -41,9 +41,10 @@ export class RayTracingCollisionManager {
                 // Keeping this very specific to constant colored spheres here
                 // Update this to return a more complex object that contains
                 // the desired color. What happens in case of refractions?
-                if(o.intersectsWithRay(from, to)) {
+                if(o.intersectsWithRay(from, to, r.getRadius())) {
+                    r.onDeath();
                     const color = [255, 0, 0, 0];
-
+                    console.log("Collision has occured");
                     this.raytracer.setPixel(r.getOriginPixel().x, r.getOriginPixel().y, color, new Vector3());
                 }
             });

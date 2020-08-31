@@ -99,9 +99,13 @@ export class ParticleSystem {
     }
 
     postUpdate() {
-        this.particles.forEach(p => {
+        for (let i = 0; i < this.particles.length; i++) {
+            let p = this.particles[this.particles.length - i - 1];
             p.update();
-        }, this);
+            if (!p.isAlive()) {
+                this.removeParticle(i);
+            }
+        }
     }
 
     /**

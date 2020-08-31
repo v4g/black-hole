@@ -11,6 +11,9 @@ import { IParticleGenerator } from "./particle-system/generator/i-particle-gener
 import { EllipticalParticleGenerator } from "./particle-system/generator/elliptical-particle-generator";
 import { VisibleParticleGenerator } from "./particle-system/generator/visible-particle-generator";
 import { ArcVelocityGenerator } from "./particle-system/generator/velocity-generators/arc-velocity-generator";
+import { RayTracingPhotonGenerator, RayTracer } from "./raytracing/pin-hole-camera.";
+import { ParticleSystemCustomizer, IRayTracingCustomizer } from "./raytracing/particle-system-raytracer";
+import { IRayTraceable } from "./raytracing/i-raytraceable";
 
 /**
  * This class will encapsulate all the things needed to get the black
@@ -25,6 +28,10 @@ export class BlackHoleSystem {
     blackHole: VisibleParticle;
     particleGenerator: IParticleGenerator;
     particleGenerator2: IParticleGenerator;
+    obstacles: Array<IRayTraceable>;
+
+    customizer: ParticleSystemCustomizer;
+    raytracer: RayTracer;
     units: ScaledUnits;
     photograph: Photograph;
     count = 0;
@@ -32,18 +39,25 @@ export class BlackHoleSystem {
         this.ps = new BlackHoleParticleSystem();
     }
     initializeSystem(scene: Scene) {
-        this.units = new ScaledUnits(1.496e9, 1.989e30, 1 * 60);
+        this.units = new ScaledUnits(1.496e9, 1.989e30, 1);
         console.log(this.units.getScaledVelocity(this.MIN_ACCRETION_DISK_VEL));
-        this.blackHole = new VisibleParticle(scene, "blackHole", 1, "#ffffff", this.BLACK_HOLE_MASS);
+        this.blackHole = new VisibleParticle(scene, "blackHole", "#ffffff",  1, this.BLACK_HOLE_MASS);
         const gravity = new GravityForce(GravityForce.calculate(this.units.kgs, this.units.metres, this.units.seconds));
         this.ps.addForce(gravity);
         this.ps.addParticle(this.blackHole);
         this.initializeParticleGenerator(scene);
         this.getSchwarzchildRadius();
-        const photoPlate = new PhotographicPlate(100, 100, 100, 100, new Vector3(0, 0, 100), new Vector3(0, 0, 1));
-        this.photograph = new Photograph(photoPlate);
-        this.photograph.getPhoto().position.set(0, 0, 10);
-        scene.add(this.photograph.getPhoto());
+        // const photoPlate = new PhotographicPlate(100, 100, 100, 100, new Vector3(0, 0, 100), new Vector3(0, 0, 1));
+        // this.photograph.getPhoto().position.set(0, 0, 10);
+        // scene.add(this.photograph.getPhoto());
+        
+        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 20), new Vector3(0, 0, -1), Math.PI / 4, 2, this.units.getScaledVelocity(299792458));
+        this.obstacles = new Array<IRayTraceable>();
+        this.customizer = new ParticleSystemCustomizer(this.ps, this.raytracer, this.obstacles, 0);
+        this.raytracer.setCustomizer(this.customizer)
+        this.raytracer.emitPhotons();
+        scene.add(this.raytracer.getPhoto());
+
     }
 
     getSchwarzchildRadius() {
@@ -82,10 +96,13 @@ export class BlackHoleSystem {
             if (Math.random() > 0.6 && this.count < 100) {
                 const particle = this.particleGenerator.generate();
                 this.ps.addParticle(particle);
+                this.obstacles.push(particle as any as IRayTraceable);
                 this.count++;
             }
             this.ps.update(time_step);
-            this.photograph.update(this.ps.particles, time_step);
+            this.customizer.setTimeStep(time_step);
+            this.raytracer.update();
+            // this.photograph.update(this.ps.particles, time_step);
         }
     }
 

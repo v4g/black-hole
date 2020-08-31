@@ -1,4 +1,5 @@
 import { Vector3 } from "three";
+import { IRayTraceable } from "../../raytracing/i-raytraceable";
 
 export interface IParticle {
     getType(): number;
@@ -10,15 +11,17 @@ export interface IParticle {
     setPosition(x: number, y: number, z: number): Vector3;
     setVelocity(x: number, y: number, z: number): Vector3;
     getRadius(): number;
+    setRadius(r: number): number;
     getLifespan(): number;
     setLifespan(l: number): number;
     getAge(): number;
     setAge(a: number): number;
     onDeath(): any;
+    isAlive(): boolean;
     update(): any;
     copy(p: IParticle): any;
 }
-export class Particle implements IParticle {
+export class Particle implements IParticle, IRayTraceable {
     private velocity: Vector3;
     private position: Vector3;
     private mass: number;
@@ -26,6 +29,7 @@ export class Particle implements IParticle {
     private lifeSpan: number;
     private age: number;
     private type: number;
+    private alive: boolean;
     constructor(mass = 1, radius = 1, lifespan = 0, type = 1) {
         this.velocity = new Vector3();
         this.position = new Vector3();
@@ -34,6 +38,25 @@ export class Particle implements IParticle {
         this.lifeSpan = lifespan;
         this.age = 0;
         this.type = type;
+        this.alive = true;
+    }
+    setRadius(radius: number): number {
+        this.radius = radius;
+        return this.radius;
+    }
+    isAlive(): boolean {
+        return this.alive;
+    }
+    intersectsWithRay(from: Vector3, to: Vector3, radius: number): boolean {
+        // Calculate the perpendicular distance of this line 
+        // with the particle and see if it is inside the radius
+        const line = new Vector3().subVectors(to, from).normalize();
+        const toRadius = this.getPosition().sub(from);
+        const x_proj = toRadius.dot(line);
+        const proj = toRadius.sub(line.multiplyScalar(x_proj));
+        if (proj.length() <= this.getRadius() + radius)
+            return true;
+        return false;
     }
     copy(p: IParticle) {
         this.velocity = p.getVelocity();
@@ -85,7 +108,7 @@ export class Particle implements IParticle {
         return this.radius;
     }
     onDeath() {
-
+        this.alive = false;
     }
 
 }

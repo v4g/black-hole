@@ -21,6 +21,10 @@ Photon emission:
         Put the photon in a particle system
         Don't need reflections
         Would probably need red-shift.
+    A common structure for holding all particles/photons
+        I don't have a common place where all the particles are being held. Instead they are in the particle system. This
+        is unneccessary as only the particles that need to be processed by it should be there. I shouldn't have to share the
+        particle system's inner structure to send the particles to the ray tracer.
 Optimization:
     Only a snapshot of the black hole can be obtained by simulating nothing else but photons
     The speed of the simulation would have to be slowed down

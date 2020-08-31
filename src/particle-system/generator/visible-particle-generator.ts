@@ -18,7 +18,7 @@ export class VisibleParticleGenerator extends ParticleGenerator {
     }
     generate(): IParticle {
         const particle = this.generator.generate();
-        const visible_particle = new VisibleParticle(this.scene, "p", this.radius, this.color, particle.getMass());
+        const visible_particle = new VisibleParticle(this.scene, "p", this.color, this.radius, particle.getMass());
         visible_particle.setVelocity(particle.getVelocity().x, particle.getVelocity().y, particle.getVelocity().z);
         visible_particle.setPosition(particle.getPosition().x, particle.getPosition().y, particle.getPosition().z);
         visible_particle.setLifespan(particle.getLifespan());
