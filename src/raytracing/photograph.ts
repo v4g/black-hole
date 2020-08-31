@@ -92,8 +92,8 @@ export class PhotographicPlate {
      * @param color A byte array containing the color in RGBA format
      */
     setPixel(x: number, y: number, color: number[]) {
-        x = Math.floor(x);
-        y = Math.floor(y);
+        x = 4 * Math.floor(x);
+        y = 4 * Math.floor(y);
         const index = y * this.resolution.x + x;
         color.forEach((i, j) => {
             this.data[index + j] = Math.min(this.data[index + j] + i, 255);

@@ -75,7 +75,7 @@ export class RayTracer implements IRayTracer {
                 vel.applyQuaternion(this.rotation);
                 this.generator.parameter(i, j, vel);
                 const ray = this.generator.generate();
-                console.log("Photon was emitted");
+                // console.log("Photon was emitted");
                 ray.setPosition(this.hole.x, this.hole.y, this.hole.z);
                 this.postEmit(ray);
             }

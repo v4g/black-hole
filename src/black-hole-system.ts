@@ -29,12 +29,14 @@ export class BlackHoleSystem {
     particleGenerator: IParticleGenerator;
     particleGenerator2: IParticleGenerator;
     obstacles: Array<IRayTraceable>;
+    totalTime = 0;
 
     customizer: ParticleSystemCustomizer;
     raytracer: RayTracer;
     units: ScaledUnits;
     photograph: Photograph;
     count = 0;
+    timeBefore = 0;
     constructor(scene: Scene) {
         this.ps = new BlackHoleParticleSystem();
     }
@@ -51,7 +53,7 @@ export class BlackHoleSystem {
         // this.photograph.getPhoto().position.set(0, 0, 10);
         // scene.add(this.photograph.getPhoto());
         
-        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 20), new Vector3(0, 0, -1), Math.PI / 4, 4, this.units.getScaledVelocity(299792458));
+        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 20), new Vector3(0, 0, -1), Math.PI / 3, 8, this.units.getScaledVelocity(299792458));
         this.obstacles = new Array<IRayTraceable>();
         this.customizer = new ParticleSystemCustomizer(this.ps, this.raytracer, this.obstacles, 0);
         this.raytracer.setCustomizer(this.customizer)
@@ -91,6 +93,7 @@ export class BlackHoleSystem {
     }
     update(time_step: number) {
         const N_ITERATIONS = 100;
+        const time_before = this.totalTime;
         for (let i = 0; i < N_ITERATIONS; i++) {
 
             if (Math.random() > 0.6 && this.count < 100) {
@@ -98,10 +101,15 @@ export class BlackHoleSystem {
                 this.ps.addParticle(particle);
                 this.obstacles.push(particle as any as IRayTraceable);
                 this.count++;
-            }
+            }            
             this.ps.update(time_step);
             this.customizer.setTimeStep(time_step);
             this.raytracer.update();
+            this.totalTime += time_step;
+            if (this.totalTime - this.timeBefore > 100) {
+                this.raytracer.emitPhotons();
+                this.timeBefore = this.totalTime;
+            }
             // this.photograph.update(this.ps.particles, time_step);
         }
     }

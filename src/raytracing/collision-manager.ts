@@ -44,7 +44,7 @@ export class RayTracingCollisionManager {
                 if(o.intersectsWithRay(from, to, r.getRadius())) {
                     r.onDeath();
                     const color = [16, 0, 0, 0];
-                    console.log("Collision has occured");
+                    // console.log("Collision has occured", r.getOriginPixel());
                     this.raytracer.setPixel(r.getOriginPixel().x, r.getOriginPixel().y, color, new Vector3());
                 }
             });

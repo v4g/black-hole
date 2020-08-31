@@ -17,7 +17,7 @@ export class BlackHoleStarter extends Boilerplate {
     }
 
     animateHook() {
-        this.time_step = 0.003;
+        this.time_step = 0.006;
         this.system.update(this.time_step);
         this.controls.update();
     }
