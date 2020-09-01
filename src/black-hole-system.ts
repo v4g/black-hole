@@ -14,6 +14,7 @@ import { ArcVelocityGenerator } from "./particle-system/generator/velocity-gener
 import { RayTracingPhotonGenerator, RayTracer } from "./raytracing/pin-hole-camera.";
 import { ParticleSystemCustomizer, IRayTracingCustomizer } from "./raytracing/particle-system-raytracer";
 import { IRayTraceable } from "./raytracing/i-raytraceable";
+import { Octree } from "./raytracing/collisions/octree";
 
 /**
  * This class will encapsulate all the things needed to get the black
@@ -52,9 +53,9 @@ export class BlackHoleSystem {
         // const photoPlate = new PhotographicPlate(100, 100, 100, 100, new Vector3(0, 0, 100), new Vector3(0, 0, 1));
         // this.photograph.getPhoto().position.set(0, 0, 10);
         // scene.add(this.photograph.getPhoto());
-        
         this.raytracer = new RayTracer(scene, new Vector3(0, 0, 30), new Vector3(0, 0, -1), Math.PI / 3, 8, this.units.getScaledVelocity(299792458));
         this.obstacles = new Array<IRayTraceable>();
+        const octree = new Octree(this.obstacles);
         this.customizer = new ParticleSystemCustomizer(this.ps, this.raytracer, this.obstacles, 0);
         this.raytracer.setCustomizer(this.customizer)
         this.raytracer.emitPhotons();
