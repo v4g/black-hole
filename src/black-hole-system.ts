@@ -6,7 +6,7 @@ import { VisibleParticle } from "./particle-system/particle/visible-particle";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
 import { Photograph, PhotographicPlate } from "./raytracing/photograph";
 import { GravityForce } from "./particle-system/forces/gravity-force";
-import { IParticle } from "./particle-system/particle/particle";
+import { IParticle, Particle } from "./particle-system/particle/particle";
 import { IParticleGenerator } from "./particle-system/generator/i-particle-generator";
 import { EllipticalParticleGenerator } from "./particle-system/generator/elliptical-particle-generator";
 import { VisibleParticleGenerator } from "./particle-system/generator/visible-particle-generator";
@@ -55,7 +55,9 @@ export class BlackHoleSystem {
         // scene.add(this.photograph.getPhoto());
         this.raytracer = new RayTracer(scene, new Vector3(0, 0, 30), new Vector3(0, 0, -1), Math.PI / 3, 8, this.units.getScaledVelocity(299792458));
         this.obstacles = new Array<IRayTraceable>();
-        const octree = new Octree(this.obstacles);
+        // this.emitParticles();
+        this.testOctree();
+        const octree = new Octree(this.obstacles, new Vector3(-20, -20, -20), new Vector3(20, 20, 20));
         this.customizer = new ParticleSystemCustomizer(this.ps, this.raytracer, this.obstacles, 0);
         this.raytracer.setCustomizer(this.customizer)
         this.raytracer.emitPhotons();
@@ -63,6 +65,25 @@ export class BlackHoleSystem {
 
     }
 
+    testOctree() {
+        let particle = new Particle();
+        particle.setPosition(-10, -10, -10);
+        this.obstacles.push(particle);
+        particle = new Particle();
+        particle.setPosition(10, 10, 10);
+        this.obstacles.push(particle);
+        particle = new Particle();
+        particle.setPosition(-10, -10, 10);
+        this.obstacles.push(particle);
+        particle = new Particle();
+        particle.setPosition(-10, 10, 10);
+        this.obstacles.push(particle);
+        const octree = new Octree(this.obstacles, new Vector3(-20, -20, -20), new Vector3(20, 20, 20));
+        const res = octree.find(particle.getPosition()) ;
+        if (res){
+            console.log(res);
+        }
+    }
     getSchwarzchildRadius() {
         const c = this.units.getScaledVelocity(299792458);
         const gravity = new GravityForce(GravityForce.calculate(this.units.kgs, this.units.metres, this.units.seconds));
@@ -97,12 +118,12 @@ export class BlackHoleSystem {
         const time_before = this.totalTime;
         for (let i = 0; i < N_ITERATIONS; i++) {
 
-            if (Math.random() > 0.6 && this.count < 100) {
-                const particle = this.particleGenerator.generate();
-                this.ps.addParticle(particle);
-                this.obstacles.push(particle as any as IRayTraceable);
-                this.count++;
-            }            
+            // if (Math.random() > 0.6 && this.count < 100) {
+            //     const particle = this.particleGenerator.generate();
+            //     this.ps.addParticle(particle);
+            //     this.obstacles.push(particle as any as IRayTraceable);
+            //     this.count++;
+            // }            
             this.ps.update(time_step);
             this.customizer.setTimeStep(time_step);
             this.raytracer.update();
@@ -115,6 +136,15 @@ export class BlackHoleSystem {
         }
     }
 
+    emitParticles() {
+        let count = 0;
+        while(count < 100) {
+            const particle = this.particleGenerator.generate();
+            this.ps.addParticle(particle);
+            this.obstacles.push(particle as any as IRayTraceable);
+            count++;
+        } 
+    }
     scaleVelocity(particle: IParticle) {
         const mag = this.units.getScaledVelocity(particle.getVelocity().length());
         const vel = particle.getVelocity().normalize().multiplyScalar(mag);

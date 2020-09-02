@@ -27,6 +27,9 @@ export class SpaceParticle implements IParticle, IRayTraceable {
         this.generator = photonGenerator;
         this.ps = ps;
     }
+    intersectsWithBox(from: Vector3, to: Vector3): boolean {
+        return this.particle.intersectsWithBox(from, to);
+    }
     setRadius(r: number): number {
         return this.particle.setRadius(r);
     }

@@ -24,6 +24,9 @@ export class VisibleParticle implements IParticle, IRayTraceable {
         this.scene = scene;
         this.scene.add(this.mesh);
     }
+    intersectsWithBox(from: Vector3, to: Vector3): boolean {
+        return this.particle.intersectsWithBox(from, to);
+    }
     setRadius(r: number): number {
         this.mesh.scale.set(r, r, r);
         return this.particle.setRadius(r);
