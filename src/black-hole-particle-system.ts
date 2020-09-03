@@ -1,4 +1,5 @@
 import { ParticleSystem } from "./particle-system/particle-system";
+import { SpaceParticle } from "./space-particle";
 
 export class BlackHoleParticleSystem extends ParticleSystem {
     calculateDerivative() {
@@ -10,9 +11,13 @@ export class BlackHoleParticleSystem extends ParticleSystem {
         this.forces.forEach(force => {
             const j = 0; // only calculate with respect to the black hole
             for (let i = 1; i < this.particles.length; i++) {
-                let forces = force.apply(this.particles[i], this.particles[j]);
-                this.derivative.add(i, [0, 0, 0, forces[0].x, forces[0].y, forces[0].z]);
-                this.derivative.add(j, [0, 0, 0, forces[1].x, forces[1].y, forces[1].z]);
+                // TODO
+                // Only update photons until we figure out how to update particles in Octree
+                if (this.particles[i].getType() == SpaceParticle.PHOTON) {
+                    let forces = force.apply(this.particles[i], this.particles[j]);
+                    this.derivative.add(i, [0, 0, 0, forces[0].x, forces[0].y, forces[0].z]);
+                    this.derivative.add(j, [0, 0, 0, forces[1].x, forces[1].y, forces[1].z]);
+                }
             }
         }, this);
     }

@@ -24,9 +24,10 @@ export class Octree {
 
     // This code ran flawlessly on the first run
     private create(objects: Array<IRayTraceable>, corner1: Vector3, corner2: Vector3) {
+        // Putting this outside for larger intersection tests
+        this.objects = objects;
         if (objects.length <= this.MAX_OBJECTS_IN_NODE) {
-            this.objects = objects;
-            return;
+           return;
         }
         // create the corners of the new cubes
         const dimensions = [corner2.x - corner1.x, corner2.y - corner1.y, corner2.z - corner1.z];
@@ -79,6 +80,29 @@ export class Octree {
         return null;
     }
 
+    // This is tricky business
+    // TODO : If both the points are present in one node, we're good and can recurse down
+    // However, if both are in different nodes, this becomes a challenge
+    // We could return both of those whole nodes, but that would be too many
+    // We could find the intersections of the nodes with the edge of the boxes
+    // and search those
+    // We'll ignore that scenario for now
+    public findRay(from: Vector3, to:Vector3): Octree | null {
+        if (this.contains(from) && this.contains(to)) {
+            if (this.node.length == 0) {
+                return this;
+            }
+            for (let i = 0; i < this.node.length; i++) {
+                const tree = this.node[i];
+                const search = tree.findRay(from, to);
+                if (search !== null) {
+                    return search;
+                }
+            };
+        }
+        return null;
+    }
+
     public contains(point: Vector3): boolean {
         if (point.x > Math.max(this.corners[0].x, this.corners[1].x)) return false;
         if (point.y > Math.max(this.corners[0].y, this.corners[1].y)) return false;
@@ -88,4 +112,6 @@ export class Octree {
         if (point.z < Math.min(this.corners[0].z, this.corners[1].z)) return false;
         return true;
     }
+
+    public getObjects() { return this.objects; }
 }
