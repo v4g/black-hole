@@ -12,6 +12,9 @@ export class ParticleDerivative {
     constructor() {
         this.derivative = new Array<Array<number>>();
     }
+    length(): number {
+        return this.derivative.length;
+    }
     addParticle() {
         this.derivative.push(new Array<number>(0, 0, 0, 0, 0, 0));
     }
@@ -46,6 +49,9 @@ export class ParticleDerivative {
 
         }, this);
     }
+    printCount() {
+        console.log(this.derivative.length);
+    }
     destroy() {
         this.derivative.forEach((p) => {
             p = [];
@@ -68,9 +74,9 @@ export class ParticleDerivative {
  * which will be held in the forces array
  */
 export class ParticleSystem {
-    particles: Array<IParticle>;
+    protected particles: Array<IParticle>;
     forces: Array<IForce>;
-    derivative: ParticleDerivative;
+    protected derivative: ParticleDerivative;
     constructor() {
         this.particles = new Array<IParticle>();
         this.derivative = new ParticleDerivative();
@@ -84,6 +90,10 @@ export class ParticleSystem {
         this.particles.splice(i, 1);
         this.derivative.remove(i);
     }
+    printCOunt() {
+        console.log("Particle Count %s Derivative count %s",this.particles.length, this.derivative.length());
+
+    }
     addForce(force: IForce) {
         this.forces.push(force);
     }
@@ -94,13 +104,18 @@ export class ParticleSystem {
      */
     update(time_step: number) {
         this.updateRK4(time_step);
+        this.updateHook();
         this.postUpdate();
         this.updateParticleLives(time_step);
     }
+    updateHook(){
+
+    }
 
     postUpdate() {
-        for (let i = 0; i < this.particles.length; i++) {
-            let index = this.particles.length - i - 1;
+        const len = this.particles.length;
+        for (let i = 0; i < len; i++) {
+            let index = len - i - 1;
             let p = this.particles[index];
             p.update();
             if (!p.isAlive()) {
@@ -115,7 +130,8 @@ export class ParticleSystem {
      * @param time_step 
      */
     updateParticleLives(time_step: number) {
-        for (let i = 0; i < this.particles.length; i++) {
+        const len = this.particles.length;
+        for (let i = len - 1; i >= 0; i--) {
             let particle = this.particles[i];
             particle.setAge(particle.getAge() + time_step);
             if (particle.getLifespan() > 0 && particle.getAge() > particle.getLifespan()) {

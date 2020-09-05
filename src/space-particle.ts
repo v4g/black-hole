@@ -129,7 +129,7 @@ export class SpaceParticleGenerator extends ParticleGenerator {
         space_particle.setPosition(pos.x, pos.y, pos.z);
         space_particle.setLifespan(particle.getLifespan());
         space_particle.setType(particle.getType());
-        space_particle.setRadius(1);
+        space_particle.setRadius(2);
         return space_particle;
     }
 }

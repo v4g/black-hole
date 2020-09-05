@@ -13,24 +13,39 @@ export class Octree {
     private objects: Array<IRayTraceable>;
     private corners: Array<Vector3>;
     private readonly MAX_OBJECTS_IN_NODE = 3;
+    private minDiagLength = 0;
+    private maxDepth = Number.POSITIVE_INFINITY;
+    private depth = 0;
     // TODO : this should not be ray traceable but collidable
-    constructor(objects: Array<IRayTraceable>, corner1?: Vector3, corner2?: Vector3) {
+    constructor(objects: Array<IRayTraceable>, corner1?: Vector3, corner2?: Vector3, minDiagLength = 0, max_depth = Number.POSITIVE_INFINITY, depth = 0) {
         this.node = new Array<Octree>();
+        this.setMinDiagLength(minDiagLength);
         this.create(objects, corner1, corner2);
         this.corners = new Array<Vector3>(2);
         this.corners[0] = corner1;
         this.corners[1] = corner2;
+        this.maxDepth = max_depth;
+        this.depth = depth;
+    }
+    setMinDiagLength(length: number) {
+        this.minDiagLength = length;
     }
 
     // This code ran flawlessly on the first run
     private create(objects: Array<IRayTraceable>, corner1: Vector3, corner2: Vector3) {
         // Putting this outside for larger intersection tests
         this.objects = objects;
-        if (objects.length <= this.MAX_OBJECTS_IN_NODE) {
-           return;
+        const dimensions = [corner2.x - corner1.x, corner2.y - corner1.y, corner2.z - corner1.z];
+        // Dont create children if they are smaller than this length
+        let diagLength = dimensions[0] * dimensions[0] + dimensions[1] * dimensions[1] + dimensions[2] * dimensions[2];
+        diagLength = diagLength / 4;
+        if (objects.length <= this.MAX_OBJECTS_IN_NODE || this.minDiagLength >= diagLength) {
+            return;
+        }
+        if (this.depth >= this.maxDepth) {
+            return;
         }
         // create the corners of the new cubes
-        const dimensions = [corner2.x - corner1.x, corner2.y - corner1.y, corner2.z - corner1.z];
         const corners = new Array<Vector3>();
         const mid = new Vector3().addVectors(corner1, corner2).multiplyScalar(0.5);
         corners.push(corner1);
@@ -57,9 +72,10 @@ export class Octree {
             });
             // Finished creating an array of objects that are contained in this box
             // Create its own octree
-            if (subobjects.length > 0) {
+            if (subobjects.length > 0 && subobjects.length < objects.length) {
                 // console.log("Creating an octree with {0} objects", subobjects.length);
-                this.node.push(new Octree(subobjects, corners[2 * i], corners[2 * i + 1]));
+                this.node.push(new Octree(subobjects, corners[2 * i], corners[2 * i + 1],
+                    this.minDiagLength, this.maxDepth, this.depth + 1));
             }
         }
     }
@@ -87,7 +103,7 @@ export class Octree {
     // We could find the intersections of the nodes with the edge of the boxes
     // and search those
     // We'll ignore that scenario for now
-    public findRay(from: Vector3, to:Vector3): Octree | null {
+    public findRay(from: Vector3, to: Vector3): Octree | null {
         if (this.contains(from) && this.contains(to)) {
             if (this.node.length == 0) {
                 return this;

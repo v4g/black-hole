@@ -16,7 +16,7 @@ export class PhotonGenerator extends ParticleGenerator {
     generate(): IParticle {
         const particle = super.generate();
         particle.setType(SpaceParticle.PHOTON);
-        particle.setRadius(1);
+        particle.setRadius(0.1);
         return particle;
     }
     setSpeedOfLight(s: number) {

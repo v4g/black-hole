@@ -42,12 +42,12 @@ export class Particle implements IParticle, IRayTraceable {
     }
     intersectsWithBox(from: Vector3, to: Vector3): boolean {
         const pos = this.getPosition();
-        if (pos.x > Math.max(from.x, to.x)) return false;
-        if (pos.y > Math.max(from.y, to.y)) return false;
-        if (pos.z > Math.max(from.z, to.z)) return false;
-        if (pos.x < Math.min(from.x, to.x)) return false;
-        if (pos.y < Math.min(from.y, to.y)) return false;
-        if (pos.z < Math.min(from.z, to.z)) return false;
+        if (pos.x > (Math.max(from.x, to.x) + this.getRadius())) return false;
+        if (pos.y > (Math.max(from.y, to.y) + this.getRadius())) return false;
+        if (pos.z > (Math.max(from.z, to.z) + this.getRadius())) return false;
+        if (pos.x < (Math.min(from.x, to.x) - this.getRadius())) return false;
+        if (pos.y < (Math.min(from.y, to.y) - this.getRadius())) return false;
+        if (pos.z < (Math.min(from.z, to.z) - this.getRadius())) return false;
         return true;
     }
     setRadius(radius: number): number {

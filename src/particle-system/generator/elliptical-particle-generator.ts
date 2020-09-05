@@ -31,8 +31,6 @@ export class EllipticalParticleGenerator extends ParticleGenerator {
         vel.multiplyScalar(this.mag);
         // particle.setVelocity(vel.x, vel.y, vel.z);
         particle.setPosition(pos.x, pos.y, pos.z);
-        // console.log(vel.x, vel.y, vel.z);
-        // console.log(pos.x, pos.y, pos.z);
         particle.setLifespan(this.lifespan);
         return particle;
     }

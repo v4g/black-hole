@@ -49,8 +49,8 @@ export class BlackHoleSystem {
         this.ps.addForce(gravity);
         this.ps.addParticle(this.blackHole);
         this.initializeParticleGenerator(scene);
-        this.getSchwarzchildRadius();
-        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 30), new Vector3(0, 0, -1), Math.PI / 3, 16, this.units.getScaledVelocity(299792458));
+        this.ps.setEventHorizon(this.getSchwarzchildRadius());
+        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 100), new Vector3(0, 0, -1), Math.PI / 8, 64, this.units.getScaledVelocity(299792458));
         this.obstacles = new Array<IRayTraceable>();
         this.emitParticles();
         this.customizer = new ParticleSystemCustomizer(this.ps, this.raytracer, this.obstacles, 0);
@@ -87,45 +87,30 @@ export class BlackHoleSystem {
 
     initializeParticleGenerator(scene: Scene) {
         const radius = this.getSchwarzchildRadius();
-        const generator = new EllipticalParticleGenerator(1.5 * radius, 1.5 * radius, this.blackHole.getPosition(),
+        const multiplier = 1.5;
+        const generator = new EllipticalParticleGenerator(multiplier * radius, multiplier * radius, this.blackHole.getPosition(),
             new Vector3(1, 0, 0), new Vector3(0, 0, 1), new Vector3(0, -1, 0), this.units.getScaledVelocity(this.MIN_ACCRETION_DISK_VEL));
         generator.setParameters(0.0001, 0.00015, 0);
-        generator.setWidth(1 * radius);
+        generator.setWidth(3 * radius);
+
         const particleGenerator = new SpaceParticleGenerator(scene, this.ps, this.units, generator);
         this.particleGenerator = particleGenerator;
         this.particleGenerator.setPosition(new Vector3(0, 0, 0));
         this.blackHole.addLightSource("#ffffff");
-        // this.particleGenerator.setVelocityGenerator(new ArcVelocityGenerator(new Vector3(1, 0, 0), Math.PI / 3, new Vector3(0, 0, 1),
-        //     this.units.getScaledVelocity(this.MIN_ACCRETION_DISK_VEL), this.units.getScaledVelocity(this.MAX_ACCRETION_DISK_VEL)));
-        // this.particleGenerator.setPositionGenerator(new EllipticalPositionGenerator(20, 20, this.blackHole.getPosition(),
-        //     new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1)));
-        this.particleGenerator2 = new VisibleParticleGenerator(scene, 0.1);
-        this.particleGenerator2.setParameters(0.0001, 0.00015, 0);
-        this.particleGenerator2.setVelocityGenerator(new ArcVelocityGenerator(new Vector3(-1, 0, 0), Math.PI / 3, new Vector3(0, 0, 1),
-            this.units.getScaledVelocity(this.MIN_ACCRETION_DISK_VEL), this.units.getScaledVelocity(this.MAX_ACCRETION_DISK_VEL)));
-        this.particleGenerator2.setPosition(new Vector3(0, 20, 0));
-
     }
     update(time_step: number) {
         const N_ITERATIONS = 100;
         const time_before = this.totalTime;
         for (let i = 0; i < N_ITERATIONS; i++) {
 
-            // if (Math.random() > 0.6 && this.count < 100) {
-            //     const particle = this.particleGenerator.generate();
-            //     this.ps.addParticle(particle);
-            //     this.obstacles.push(particle as any as IRayTraceable);
-            //     this.count++;
-            // }            
             this.ps.update(time_step);
             this.customizer.setTimeStep(time_step);
             this.raytracer.update();
             this.totalTime += time_step;
-            if (this.totalTime - this.timeBefore > 500) {
-                this.raytracer.emitPhotons();
-                this.timeBefore = this.totalTime;
-            }
-            // this.photograph.update(this.ps.particles, time_step);
+            // if (this.totalTime - this.timeBefore > 500) {
+            //     this.raytracer.emitPhotons();
+            //     this.timeBefore = this.totalTime;
+            // }
         }
     }
 

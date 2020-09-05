@@ -56,7 +56,10 @@ export class RayTracer implements IRayTracer {
         // return the image on the plate
         return this.mesh;
     }
-
+    getResolution(): Vector2
+    {
+        return this.plate.resolution;
+    }
     // Updates the plate by checking if any of the particles have collided
     // with the plate
     update() {
@@ -67,19 +70,29 @@ export class RayTracer implements IRayTracer {
     emitPhotons() {
         for (let i = 0; i < this.plate.resolution.x; i++) {
             for (let j = 0; j < this.plate.resolution.y; j++) {
-                const x = (i + 0.5) / this.plate.resolution.x * this.plate.width - this.plate.width/2;
-                const y = (j + 0.5) / this.plate.resolution.y * this.plate.height- this.plate.height/2;
-                const z = this.DIST_TO_PLATE;
-                // Transform this velocity by the camera's transform
-                const vel = new Vector3(x, y, z);
-                vel.applyQuaternion(this.rotation);
-                this.generator.parameter(i, j, vel);
-                const ray = this.generator.generate();
-                // console.log("Photon was emitted");
-                ray.setPosition(this.hole.x, this.hole.y, this.hole.z);
-                this.postEmit(ray);
-            }
+                // if ((i < 8 || i > 24) && j >= 16 && j < 32)
+                // if (j > 15 && j < 31)
+                this.emitFrom(i, j);                            }
         }
+    }
+    emitFrom(i: number, j: number) {
+        const perturbx = Math.random() * 0.6 + 0.2;
+        const perturby = Math.random() * 0.6 + 0.2;
+        const x = (i + perturbx) / this.plate.resolution.x * this.plate.width - this.plate.width/2;
+        const y = (j + perturby) / this.plate.resolution.y * this.plate.height- this.plate.height/2;
+        const z = this.DIST_TO_PLATE;
+        // Transform this velocity by the camera's transform
+        const vel = new Vector3(x, y, z);
+        vel.applyQuaternion(this.rotation);
+        this.generator.parameter(i, j, vel);
+        const ray = this.generator.generate();
+        ray.setPosition(this.hole.x, this.hole.y, this.hole.z);
+        this.postEmit(ray);
+    }
+    emitFromRandomPixel() {
+        const i = Math.floor(Math.random() * this.plate.resolution.x);
+        const j = Math.floor(Math.random() * this.plate.resolution.x);
+        this.emitFrom(i , j);        
     }
     postEmit(ray: PixelRay) {
         if (this.customizer) {

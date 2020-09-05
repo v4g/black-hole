@@ -1,7 +1,14 @@
 import { ParticleSystem } from "./particle-system/particle-system";
 import { SpaceParticle } from "./space-particle";
+import { Vector3 } from "three";
 
 export class BlackHoleParticleSystem extends ParticleSystem {
+    eventHorizon = Number.POSITIVE_INFINITY;
+
+    setEventHorizon(schwarzchildRadius: number) {
+        this.eventHorizon = schwarzchildRadius;
+
+    }
     calculateDerivative() {
         // clear the derivative first
         this.derivative.clear();
@@ -20,5 +27,16 @@ export class BlackHoleParticleSystem extends ParticleSystem {
                 }
             }
         }, this);
+    }
+    updateHook() {
+        const len = this.particles.length;
+        for (let i = len - 1; i > 0; i--) {
+            const hole = this.particles[0];
+            const vec = new Vector3().subVectors(hole.getPosition(), this.particles[i].getPosition());
+            if (vec.length() < this.eventHorizon) {
+                this.particles[i].onDeath();
+                this.removeParticle(i);
+            }
+        }
     }
 }

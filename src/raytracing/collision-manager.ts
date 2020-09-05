@@ -29,8 +29,7 @@ export class RayTracingCollisionManager {
 
     setObstacles(obstacles: Array<IRayTraceable>) {
         this.obstacles = obstacles;
-        this.octree = new Octree(this.obstacles, new Vector3(-20, -20, -20), new Vector3(20, 20, 20));
-
+        this.octree = new Octree(this.obstacles, new Vector3(-50, -50, -50), new Vector3(50, 50, 50), 4, 10);
     }
 
     updateParticleInOctree(particle: IParticle) {
@@ -48,13 +47,15 @@ export class RayTracingCollisionManager {
             if (node) {
                 const obstacles = node.getObjects();
                 // if (obstacles.length > 3) {
-                    // console.log("Comparing with %s objects", obstacles.length);                
+                // console.log("Comparing with %s objects", obstacles.length);                
                 // }
                 obstacles.forEach(o => {
                     if (o.intersectsWithRay(from, to, r.getRadius())) {
                         r.onDeath();
                         const color = [16, 0, 0, 0];
-                        console.log("Collision has occured", r.getOriginPixel());
+                        // if (r.getOriginPixel().y > 24) {
+                            // console.log("Collision has occured",r.getOriginPixel(), r.getPosition(), (o as Particle).getPosition());
+                        // }
                         this.raytracer.setPixel(r.getOriginPixel().x, r.getOriginPixel().y, color, new Vector3());
                     }
                 });
@@ -65,6 +66,10 @@ export class RayTracingCollisionManager {
             //     // the desired color. What happens in case of refractions?
             //     if (o.intersectsWithRay(from, to, r.getRadius())) {
             //         r.onDeath();
+            //         if (r.getOriginPixel().y > 24) {
+            //             console.log("Collision has occured", r.getPosition(), (o as Particle).getPosition());
+
+            //         }
             //         const color = [16, 0, 0, 0];
             //         // console.log("Collision has occured", r.getOriginPixel());
             //         this.raytracer.setPixel(r.getOriginPixel().x, r.getOriginPixel().y, color, new Vector3());
@@ -74,7 +79,7 @@ export class RayTracingCollisionManager {
         this.time_taken += (new Date().getTime() - time_before);
         this.counter++;
         if (this.counter > 10000) {
-            console.log( "Time Taken ", this.time_taken);
+            console.log("Time Taken ", this.time_taken);
             this.time_taken = 0;
             this.counter = 0;
         }

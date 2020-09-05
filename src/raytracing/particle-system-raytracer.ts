@@ -28,6 +28,7 @@ export class ParticleSystemCustomizer implements IRayTracingCustomizer {
         this.collisionManager.setRays(this.rays);
         this.time_step = time_step;
         this.collisionManager.setObstacles(obstacles)
+        this.raytracer = raytracer;
     }
     postEmit(ray: PixelRay): any {
         this.particleSystem.addParticle(ray);
@@ -38,12 +39,17 @@ export class ParticleSystemCustomizer implements IRayTracingCustomizer {
     }
     update() {
         // this is not good. This needs to be managed somewhere else
-        for (let i = this.rays.length - 1; i >= 0; i--) {
+        const len = this.rays.length;
+        for (let i = len - 1; i >= 0; i--) {
             const ray = this.rays[i];
             if (!ray.isAlive()) {
                 this.rays.splice(i, 1);
+                this.raytracer.emitFrom(ray.getOriginPixel().x, ray.getOriginPixel().y);                    
+                // this.raytracer.emitFromRandomPixel();     
+                // this.particleSystem.printCOunt();           
             }
         }
+        // console.log("No. of rays ", this.rays.length);
         this.collisionManager.update(this.time_step);
     }
 
