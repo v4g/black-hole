@@ -9,16 +9,20 @@ export class GravityForce implements IForce {
         if (G) this.G = G;
         else this.G = 1;
     }
+    vec_length_squared(vec: Vector3): number {
+        const len = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
+        return len;
+    }
     apply(p1: IParticle, p2: IParticle): Vector3[] {
         const r_vec = p1.getPosition().sub(p2.getPosition());
-        let r = r_vec.length();
-        r = r * r;
+        let r = 1 / this.vec_length_squared(r_vec);
         let f1 = new Vector3();
         let f2 = new Vector3();
         if (r > 0) {
+            // const unit_r = r_vec.clone();
             const unit_r = r_vec.normalize();
-            f1 = unit_r.clone().multiplyScalar(-this.G * p2.getMass() / (r));
-            f2 = unit_r.clone().multiplyScalar(this.G * p1.getMass() / (r));
+            f1 = unit_r.clone().multiplyScalar(-this.G * p2.getMass() * (r));
+            f2 = unit_r.clone().multiplyScalar(this.G * p1.getMass() * (r));
         }
         return [f1, f2];
     }

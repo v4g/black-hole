@@ -17,7 +17,7 @@ export class EllipticalParticleGenerator extends ParticleGenerator {
         this.center = center;
         this.axis = z;
         this.mag = vel;
-        console.log(vel);
+        // console.log(vel);
     }
     setWidth(width: number) {
         this.position_generator.setWidth(width);

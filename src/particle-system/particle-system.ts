@@ -34,6 +34,11 @@ export class ParticleDerivative {
                 this.derivative[i][j] = 0;
             }
     }
+    set(i: number, items: Array<number>) {
+        for (let j = 0; j < items.length; j++)
+            this.derivative[i][j] = items[j];
+
+    }
     scale(n: number) {
         for (let i = 0; i < this.derivative.length; i++)
             for (let j = 0; j < this.derivative[i].length; j++) {
@@ -114,9 +119,9 @@ export class ParticleSystem {
     addParticle(particle: IParticle) {
         this.particles.push(particle);
         this.derivative.addParticle();
-        this.derivativeCaches.forEach(c=>{
-            if (this.derivative.length() > c.length())  c.addParticle();
-        }) 
+        this.derivativeCaches.forEach(c => {
+            if (this.derivative.length() > c.length()) c.addParticle();
+        })
     }
     removeParticle(i: number) {
         this.particles.splice(i, 1);
@@ -228,15 +233,10 @@ export class ParticleSystem {
     }
     updateRK4(time_step: number) {
         const oldDerivative = this.derivative;
-        this.profiler.start("StoreState", 1000);
+        this.profiler.start("PS : StoreState", 1000);
         const state = this.storeState();
-        this.profiler.stop("StoreState", 1000);
-        this.profiler.start("DerivativeCalculate", 1000);
         this.derivativeCaches[0] = this.calculateDerivative(this.derivativeCaches[0]);
-        this.profiler.stop("DerivativeCalculate", 1000);
-        this.profiler.start("Scale", 1000);
         this.derivativeCaches[0].scale(time_step / 2);
-        this.profiler.stop("Scale", 1000);
         const k1 = this.derivativeCaches[0];
         this.derivative = k1;
         this.updateAllParticles();
@@ -255,6 +255,8 @@ export class ParticleSystem {
         this.derivativeCaches[3] = this.calculateDerivative(this.derivativeCaches[3]);
         this.derivativeCaches[3].scale(time_step);
         const k4 = this.derivativeCaches[3];
+        this.profiler.stop("PS : StoreState", 1000);
+        this.profiler.start("PS : RestoreState", 1000);
         this.derivative = k4;
         this.restoreState(state);
         k1.scale(1 / 3);
@@ -270,9 +272,11 @@ export class ParticleSystem {
         this.derivative = k4;
         this.updateAllParticles();
         this.derivative = oldDerivative;
+        this.profiler.stop("PS : RestoreState", 1000);
+        
     }
 
-    calculateDerivative(derivative: ParticleDerivative) : ParticleDerivative {
+    calculateDerivative(derivative: ParticleDerivative): ParticleDerivative {
         // clear the derivative first
         derivative.clear();
         this.particles.forEach((p, i) => {

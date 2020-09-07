@@ -1,19 +1,21 @@
 import { ParticleSystem, ParticleDerivative } from "./particle-system/particle-system";
 import { SpaceParticle } from "./space-particle";
 import { Vector3 } from "three";
+import { TimeProfile } from "./boilerplate/time-profile";
+import { TimeProfiler } from "./boilerplate/time-profiler";
 
 export class BlackHoleParticleSystem extends ParticleSystem {
     eventHorizon = Number.POSITIVE_INFINITY;
-
+    private myprofiler = new TimeProfiler();
     setEventHorizon(schwarzchildRadius: number) {
         this.eventHorizon = schwarzchildRadius;
 
     }
     calculateDerivative(derivative: ParticleDerivative): ParticleDerivative {
         // clear the derivative first
-        derivative.clear();
         this.particles.forEach((p, i) => {
-            derivative.add(i, [p.getVelocity().x, p.getVelocity().y, p.getVelocity().z, 0, 0, 0]);
+            const vel = p.getVelocity();
+            derivative.set(i, [vel.x, vel.y, vel.z, 0, 0, 0]);
         });
         this.forces.forEach(force => {
             const j = 0; // only calculate with respect to the black hole
@@ -27,6 +29,7 @@ export class BlackHoleParticleSystem extends ParticleSystem {
                 }
             }
         }, this);
+        
         return derivative;
     }
     updateHook() {
