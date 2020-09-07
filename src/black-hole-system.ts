@@ -15,6 +15,7 @@ import { RayTracingPhotonGenerator, RayTracer } from "./raytracing/pin-hole-came
 import { ParticleSystemCustomizer, IRayTracingCustomizer } from "./raytracing/particle-system-raytracer";
 import { IRayTraceable } from "./raytracing/i-raytraceable";
 import { Octree } from "./raytracing/collisions/octree";
+import { TimeProfile } from "./boilerplate/time-profile";
 
 /**
  * This class will encapsulate all the things needed to get the black
@@ -38,8 +39,12 @@ export class BlackHoleSystem {
     photograph: Photograph;
     count = 0;
     timeBefore = 0;
+    psprofiler : TimeProfile;
+    tracerprofiler : TimeProfile;
     constructor(scene: Scene) {
         this.ps = new BlackHoleParticleSystem();
+        this.psprofiler = new TimeProfile("Particle System", 1000);
+        this.tracerprofiler = new TimeProfile("Raytracer", 1000);
     }
     initializeSystem(scene: Scene) {
         this.units = new ScaledUnits(1.496e9, 1.989e30, 1);
@@ -50,6 +55,7 @@ export class BlackHoleSystem {
         this.ps.addParticle(this.blackHole);
         this.initializeParticleGenerator(scene);
         this.ps.setEventHorizon(this.getSchwarzchildRadius());
+        this.ps.setBounds(new Vector3(-50, -50, -50), new Vector3(50, 50, 200));
         this.raytracer = new RayTracer(scene, new Vector3(0, 0, 100), new Vector3(0, 0, -1), Math.PI / 8, 64, this.units.getScaledVelocity(299792458));
         this.obstacles = new Array<IRayTraceable>();
         this.emitParticles();
@@ -101,11 +107,15 @@ export class BlackHoleSystem {
     update(time_step: number) {
         const N_ITERATIONS = 100;
         const time_before = this.totalTime;
+        
         for (let i = 0; i < N_ITERATIONS; i++) {
-
+            this.psprofiler.start();
             this.ps.update(time_step);
+            this.psprofiler.stop();
+            this.tracerprofiler.start();
             this.customizer.setTimeStep(time_step);
             this.raytracer.update();
+            this.tracerprofiler.stop();
             this.totalTime += time_step;
             // if (this.totalTime - this.timeBefore > 500) {
             //     this.raytracer.emitPhotons();

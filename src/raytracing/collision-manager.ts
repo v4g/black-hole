@@ -17,8 +17,6 @@ export class RayTracingCollisionManager {
     rays: Array<PixelRay>;
     obstacles: Array<IRayTraceable>;
     octree: Octree;
-    counter = 0
-    time_taken = 0;
     constructor(raytracer: IRayTracer) {
         this.raytracer = raytracer;
     }
@@ -37,7 +35,6 @@ export class RayTracingCollisionManager {
     }
 
     update(time_step: number) {
-        const time_before = new Date().getTime();
         this.rays.forEach(r => {
             const from = r.getPosition();
             const to = r.getPosition().addScaledVector(r.getVelocity(), (time_step));
@@ -76,12 +73,5 @@ export class RayTracingCollisionManager {
             //     }
             // });
         });
-        this.time_taken += (new Date().getTime() - time_before);
-        this.counter++;
-        if (this.counter > 10000) {
-            console.log("Time Taken ", this.time_taken);
-            this.time_taken = 0;
-            this.counter = 0;
-        }
     }
 }

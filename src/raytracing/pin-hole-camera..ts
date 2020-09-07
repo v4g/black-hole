@@ -71,13 +71,13 @@ export class RayTracer implements IRayTracer {
         for (let i = 0; i < this.plate.resolution.x; i++) {
             for (let j = 0; j < this.plate.resolution.y; j++) {
                 // if ((i < 8 || i > 24) && j >= 16 && j < 32)
-                // if (j > 15 && j < 31)
+                if (j > 8 && j < 24)
                 this.emitFrom(i, j);                            }
         }
     }
     emitFrom(i: number, j: number) {
-        const perturbx = Math.random() * 0.6 + 0.2;
-        const perturby = Math.random() * 0.6 + 0.2;
+        const perturbx = 0; Math.random() * 0.6 + 0.2;
+        const perturby = 0; Math.random() * 0.6 + 0.2;
         const x = (i + perturbx) / this.plate.resolution.x * this.plate.width - this.plate.width/2;
         const y = (j + perturby) / this.plate.resolution.y * this.plate.height- this.plate.height/2;
         const z = this.DIST_TO_PLATE;

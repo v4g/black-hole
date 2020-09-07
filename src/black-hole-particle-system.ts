@@ -1,4 +1,4 @@
-import { ParticleSystem } from "./particle-system/particle-system";
+import { ParticleSystem, ParticleDerivative } from "./particle-system/particle-system";
 import { SpaceParticle } from "./space-particle";
 import { Vector3 } from "three";
 
@@ -9,11 +9,11 @@ export class BlackHoleParticleSystem extends ParticleSystem {
         this.eventHorizon = schwarzchildRadius;
 
     }
-    calculateDerivative() {
+    calculateDerivative(derivative: ParticleDerivative): ParticleDerivative {
         // clear the derivative first
-        this.derivative.clear();
+        derivative.clear();
         this.particles.forEach((p, i) => {
-            this.derivative.add(i, [p.getVelocity().x, p.getVelocity().y, p.getVelocity().z, 0, 0, 0]);
+            derivative.add(i, [p.getVelocity().x, p.getVelocity().y, p.getVelocity().z, 0, 0, 0]);
         });
         this.forces.forEach(force => {
             const j = 0; // only calculate with respect to the black hole
@@ -22,11 +22,12 @@ export class BlackHoleParticleSystem extends ParticleSystem {
                 // Only update photons until we figure out how to update particles in Octree
                 if (this.particles[i].getType() == SpaceParticle.PHOTON) {
                     let forces = force.apply(this.particles[i], this.particles[j]);
-                    this.derivative.add(i, [0, 0, 0, forces[0].x, forces[0].y, forces[0].z]);
-                    this.derivative.add(j, [0, 0, 0, forces[1].x, forces[1].y, forces[1].z]);
+                    derivative.add(i, [0, 0, 0, forces[0].x, forces[0].y, forces[0].z]);
+                    derivative.add(j, [0, 0, 0, forces[1].x, forces[1].y, forces[1].z]);
                 }
             }
         }, this);
+        return derivative;
     }
     updateHook() {
         const len = this.particles.length;

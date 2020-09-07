@@ -1,5 +1,7 @@
 import { IParticle } from "./particle/particle";
 import { IForce } from "./forces/I-force";
+import { Vector3 } from "three";
+import { TimeProfiler } from "../boilerplate/time-profiler";
 
 /**
  * Holds the derivative of a quantity
@@ -58,13 +60,28 @@ export class ParticleDerivative {
         });
         this.derivative = [];
     }
-    clone(): ParticleDerivative {
+    clone(cache?: ParticleDerivative): ParticleDerivative {
+        if (cache) {
+            return this.cacheClone(cache);
+        }
         const copy = new ParticleDerivative();
         this.derivative.forEach((p, i) => {
             copy.addParticle();
             copy.add(i, p);
         });
         return copy;
+    }
+    /**
+     * Hoping that this would speed up cloning by just copying and
+     * not having to allocate
+     * Causes a marginal improvement (15%)
+     * @param cache An already allocated array
+     */
+    cacheClone(cache: ParticleDerivative): ParticleDerivative {
+        this.derivative.forEach((p, i) => {
+            cache.add(i, p);
+        });
+        return cache;
     }
 }
 /**
@@ -77,21 +94,37 @@ export class ParticleSystem {
     protected particles: Array<IParticle>;
     forces: Array<IForce>;
     protected derivative: ParticleDerivative;
+    private minBounds: Vector3;
+    private maxBounds: Vector3;
+    private profiler: TimeProfiler;
+    private derivativeCaches: Array<ParticleDerivative>;
     constructor() {
         this.particles = new Array<IParticle>();
         this.derivative = new ParticleDerivative();
         this.forces = new Array<IForce>();
+        this.profiler = new TimeProfiler();
+        this.createCaches();
+    }
+    createCaches() {
+        this.derivativeCaches = new Array<ParticleDerivative>(4);
+        for (let u = 0; u < 4; u++) {
+            this.derivativeCaches[u] = new ParticleDerivative();
+        }
     }
     addParticle(particle: IParticle) {
         this.particles.push(particle);
         this.derivative.addParticle();
+        this.derivativeCaches.forEach(c=>{
+            if (this.derivative.length() > c.length())  c.addParticle();
+        }) 
     }
     removeParticle(i: number) {
         this.particles.splice(i, 1);
         this.derivative.remove(i);
+        // Not removing from the caches unless needed
     }
     printCOunt() {
-        console.log("Particle Count %s Derivative count %s",this.particles.length, this.derivative.length());
+        console.log("Particle Count %s Derivative count %s", this.particles.length, this.derivative.length());
 
     }
     addForce(force: IForce) {
@@ -103,12 +136,15 @@ export class ParticleSystem {
      * @param time_step The step by which to advance the system
      */
     update(time_step: number) {
+        this.profiler.start("RK4", 1000);
         this.updateRK4(time_step);
+        this.profiler.stop("RK4", 1000);
         this.updateHook();
         this.postUpdate();
         this.updateParticleLives(time_step);
+        this.boundsCheck();
     }
-    updateHook(){
+    updateHook() {
 
     }
 
@@ -122,6 +158,10 @@ export class ParticleSystem {
                 this.removeParticle(index);
             }
         }
+    }
+    setBounds(min: Vector3, max: Vector3) {
+        this.minBounds = min;
+        this.maxBounds = max;
     }
 
     /**
@@ -138,11 +178,20 @@ export class ParticleSystem {
                 particle.onDeath();
                 this.removeParticle(i);
             }
-            if (particle.getPosition().x > 50 || particle.getPosition().y > 50
-                || particle.getPosition().x < -50 || particle.getPosition().y < -50
-                || particle.getPosition().z < -50 || particle.getPosition().z > 300) {
-                particle.onDeath();
-                this.removeParticle(i);
+        }
+    }
+
+    boundsCheck() {
+        if (this.minBounds && this.maxBounds) {
+            const len = this.particles.length;
+            for (let i = len - 1; i >= 0; i--) {
+                let particle = this.particles[i];
+                if (particle.getPosition().x > this.maxBounds.x || particle.getPosition().y > this.maxBounds.y
+                    || particle.getPosition().x < this.minBounds.x || particle.getPosition().y < this.minBounds.y
+                    || particle.getPosition().z < this.minBounds.z || particle.getPosition().z > this.maxBounds.z) {
+                    particle.onDeath();
+                    this.removeParticle(i);
+                }
             }
         }
     }
@@ -165,37 +214,48 @@ export class ParticleSystem {
     }
     updateMidPoint(time_step: number) {
         const state = this.storeState();
-        this.calculateDerivative();
+        this.derivative = this.calculateDerivative(this.derivative);
         this.derivative.scale(time_step / 2);
         // console.log('========Intermediate=======');
         // this.derivative.print();
         this.updateAllParticles();
         // console.log('--------Intermediate particle------');
         // this.print();
-        this.calculateDerivative();
+        this.derivative = this.calculateDerivative(this.derivative);
         this.derivative.scale(time_step);
         this.restoreState(state);
         this.updateAllParticles();
     }
     updateRK4(time_step: number) {
+        const oldDerivative = this.derivative;
+        this.profiler.start("StoreState", 1000);
         const state = this.storeState();
-        this.calculateDerivative();
-        this.derivative.scale(time_step / 2);
-        const k1 = this.derivative.clone();
+        this.profiler.stop("StoreState", 1000);
+        this.profiler.start("DerivativeCalculate", 1000);
+        this.derivativeCaches[0] = this.calculateDerivative(this.derivativeCaches[0]);
+        this.profiler.stop("DerivativeCalculate", 1000);
+        this.profiler.start("Scale", 1000);
+        this.derivativeCaches[0].scale(time_step / 2);
+        this.profiler.stop("Scale", 1000);
+        const k1 = this.derivativeCaches[0];
+        this.derivative = k1;
         this.updateAllParticles();
-        this.calculateDerivative();
-        this.derivative.scale(time_step / 2);
-        const k2 = this.derivative.clone();
+        this.derivativeCaches[1] = this.calculateDerivative(this.derivativeCaches[1]);
+        this.derivativeCaches[1].scale(time_step / 2);
+        const k2 = this.derivativeCaches[1];
+        this.derivative = k2;
         this.restoreState(state);
         this.updateAllParticles();
-        this.calculateDerivative();
-        this.derivative.scale(time_step);
-        const k3 = this.derivative.clone();
+        this.derivativeCaches[2] = this.calculateDerivative(this.derivativeCaches[2]);
+        this.derivativeCaches[2].scale(time_step);
+        const k3 = this.derivativeCaches[2];
+        this.derivative = k3;
         this.restoreState(state);
         this.updateAllParticles();
-        this.calculateDerivative();
-        this.derivative.scale(time_step);
-        const k4 = this.derivative.clone();
+        this.derivativeCaches[3] = this.calculateDerivative(this.derivativeCaches[3]);
+        this.derivativeCaches[3].scale(time_step);
+        const k4 = this.derivativeCaches[3];
+        this.derivative = k4;
         this.restoreState(state);
         k1.scale(1 / 3);
         this.derivative = k1;
@@ -209,23 +269,25 @@ export class ParticleSystem {
         k4.scale(1 / 6);
         this.derivative = k4;
         this.updateAllParticles();
+        this.derivative = oldDerivative;
     }
 
-    calculateDerivative() {
+    calculateDerivative(derivative: ParticleDerivative) : ParticleDerivative {
         // clear the derivative first
-        this.derivative.clear();
+        derivative.clear();
         this.particles.forEach((p, i) => {
-            this.derivative.add(i, [p.getVelocity().x, p.getVelocity().y, p.getVelocity().z, 0, 0, 0]);
+            derivative.add(i, [p.getVelocity().x, p.getVelocity().y, p.getVelocity().z, 0, 0, 0]);
         })
         this.forces.forEach(force => {
             for (let i = 1; i < this.particles.length; i++) {
                 for (let j = 0; j < i; j++) {
                     let forces = force.apply(this.particles[i], this.particles[j]);
-                    this.derivative.add(i, [0, 0, 0, forces[0].x, forces[0].y, forces[0].z]);
-                    this.derivative.add(j, [0, 0, 0, forces[1].x, forces[1].y, forces[1].z]);
+                    derivative.add(i, [0, 0, 0, forces[0].x, forces[0].y, forces[0].z]);
+                    derivative.add(j, [0, 0, 0, forces[1].x, forces[1].y, forces[1].z]);
                 }
             }
         }, this);
+        return derivative;
     }
 
     updateAllParticles() {
