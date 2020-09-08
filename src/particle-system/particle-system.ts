@@ -142,7 +142,8 @@ export class ParticleSystem {
      */
     update(time_step: number) {
         this.profiler.start("RK4", 1000);
-        this.updateRK4(time_step);
+        // this.updateRK4(time_step);
+        this.updateMidPoint(time_step);
         this.profiler.stop("RK4", 1000);
         this.updateHook();
         this.postUpdate();

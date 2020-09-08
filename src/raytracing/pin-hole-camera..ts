@@ -71,7 +71,7 @@ export class RayTracer implements IRayTracer {
         for (let i = 0; i < this.plate.resolution.x; i++) {
             for (let j = 0; j < this.plate.resolution.y; j++) {
                 // if ((i < 8 || i > 24) && j >= 16 && j < 32)
-                if (j > 8 && j < 24)
+                // if (j > 8 && j < 24)
                 this.emitFrom(i, j);                            }
         }
     }
