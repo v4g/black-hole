@@ -234,7 +234,7 @@ export class ParticleSystem {
     }
     updateRK4(time_step: number) {
         const oldDerivative = this.derivative;
-        this.profiler.start("PS : StoreState", 1000);
+        // this.profiler.start("PS : StoreState", 1000);
         const state = this.storeState();
         this.derivativeCaches[0] = this.calculateDerivative(this.derivativeCaches[0]);
         this.derivativeCaches[0].scale(time_step / 2);
@@ -256,8 +256,8 @@ export class ParticleSystem {
         this.derivativeCaches[3] = this.calculateDerivative(this.derivativeCaches[3]);
         this.derivativeCaches[3].scale(time_step);
         const k4 = this.derivativeCaches[3];
-        this.profiler.stop("PS : StoreState", 1000);
-        this.profiler.start("PS : RestoreState", 1000);
+        // this.profiler.stop("PS : StoreState", 1000);
+        // this.profiler.start("PS : RestoreState", 1000);
         this.derivative = k4;
         this.restoreState(state);
         k1.scale(1 / 3);
@@ -273,7 +273,7 @@ export class ParticleSystem {
         this.derivative = k4;
         this.updateAllParticles();
         this.derivative = oldDerivative;
-        this.profiler.stop("PS : RestoreState", 1000);
+        // this.profiler.stop("PS : RestoreState", 1000);
         
     }
 

@@ -119,7 +119,7 @@ export class RayTracer implements IRayTracer {
         this.emitFrom(i , j);        
     }
     postEmit(ray: PixelRay) {
-        if (this.customizer) {
+        if (this.customizer && ray != null) {
             this.customizer.postEmit(ray);
         }
     }
@@ -130,6 +130,7 @@ export class RayTracer implements IRayTracer {
      */
     setPixel(x: number, y: number, color: number[], position: Vector3): any {
         this.plate.setPixel(x, y, color);
+        this.emitter.objectWasHit(x, y);
     }
 }
 export class RayTracingPhotonVelocityGenerator implements IVectorGenerator {

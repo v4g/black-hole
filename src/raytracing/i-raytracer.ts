@@ -1,4 +1,5 @@
 import { Color, Vector3, Vector2, Quaternion } from "three";
+import { PixelRay } from "./pixel-ray";
 
 export interface IRayTracer {
     setPixel(x: number, y: number, color: number[], position: Vector3): any;
@@ -10,4 +11,5 @@ export interface IRayTracer {
     getRotation(): Quaternion;
     getWidth(): number;
     getHeight(): number;
+    postEmit(ray: PixelRay): any;
 }

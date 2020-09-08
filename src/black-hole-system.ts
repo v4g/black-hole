@@ -57,7 +57,7 @@ export class BlackHoleSystem {
         this.initializeParticleGenerator(scene);
         this.ps.setEventHorizon(this.getSchwarzchildRadius());
         this.ps.setBounds(new Vector3(-50, -50, -50), new Vector3(50, 50, 200));
-        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 100), new Vector3(0, 0, -1), Math.PI / 8, 64, this.units.getScaledVelocity(299792458));
+        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 100), new Vector3(0, 0, -1), Math.PI / 8, 256, this.units.getScaledVelocity(299792458));
         this.obstacles = new Array<IRayTraceable>();
         this.emitParticles();
         this.customizer = new ParticleSystemCustomizer(this.ps, this.raytracer, this.obstacles, 0);
@@ -110,13 +110,13 @@ export class BlackHoleSystem {
         const time_before = this.totalTime;
         
         for (let i = 0; i < N_ITERATIONS; i++) {
-            this.psprofiler.start();
+            // this.psprofiler.start();
             this.ps.update(time_step);
-            this.psprofiler.stop();
-            this.tracerprofiler.start();
+            // this.psprofiler.stop();
+            // this.tracerprofiler.start();
             this.customizer.setTimeStep(time_step);
             this.raytracer.update();
-            this.tracerprofiler.stop();
+            // this.tracerprofiler.stop();
             this.totalTime += time_step;
             // if (this.totalTime - this.timeBefore > 500) {
             //     this.raytracer.emitPhotons();

@@ -6,4 +6,5 @@ import { PixelRay } from "./pixel-ray";
 export interface IRayEmitter {
     emitFrom(x: number, y: number): any;
     emit(): PixelRay[];
+    objectWasHit(x: number, y: number): any;
 }
