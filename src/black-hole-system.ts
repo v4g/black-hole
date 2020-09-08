@@ -1,6 +1,6 @@
 import { BlackHoleParticleSystem } from "./black-hole-particle-system";
 import { SpaceParticleGenerator } from "./space-particle";
-import { Vector3, Scene } from "three";
+import { Vector3, Scene, Vector2 } from "three";
 import { ScaledUnits } from "./scaled-units";
 import { VisibleParticle } from "./particle-system/particle/visible-particle";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
@@ -16,6 +16,7 @@ import { ParticleSystemCustomizer, IRayTracingCustomizer } from "./raytracing/pa
 import { IRayTraceable } from "./raytracing/i-raytraceable";
 import { Octree } from "./raytracing/collisions/octree";
 import { TimeProfile } from "./boilerplate/time-profile";
+import { VariableRayEmitter } from "./raytracing/variable-ray-emitter";
 
 /**
  * This class will encapsulate all the things needed to get the black

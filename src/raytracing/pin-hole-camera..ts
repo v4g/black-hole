@@ -12,6 +12,8 @@ import { IVectorGenerator } from "../particle-system/generator/i-particle-genera
 import { IRayTracer } from "./i-raytracer";
 import { PixelRay } from "./pixel-ray";
 import { IRayTracingCustomizer } from "./particle-system-raytracer";
+import { IRayEmitter } from "./i-ray-emitter";
+import { VariableRayEmitter } from "./variable-ray-emitter";
 
 export class RayTracer implements IRayTracer {
     private plate: PhotographicPlate;
@@ -24,6 +26,7 @@ export class RayTracer implements IRayTracer {
     private rotation: Quaternion;
     private customizer: IRayTracingCustomizer;
     private scene: Scene;
+    private emitter: IRayEmitter;
     readonly DIST_TO_PLATE = 1;
     readonly ASPECT_RATIO = 1;
 
@@ -38,6 +41,22 @@ export class RayTracer implements IRayTracer {
         this.mesh.position.copy(this.hole);
         this.rotation = new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), lookAt.normalize());
         this.createGenerator(c);
+        this.emitter = new VariableRayEmitter(this.getResolution(), this, this.generator);
+    }
+    getWidth(): number {
+        return this.plate.width;
+    }
+    getHeight(): number {
+        return this.plate.height;
+    }
+    getRotation(): Quaternion {
+        return this.rotation;
+    }
+    getDistanceToCanvas(): number {
+        return this.DIST_TO_PLATE;
+    }
+    getPosition(): Vector3 {
+        return this.hole.clone();
     }
     setCustomizer(customize: IRayTracingCustomizer) {
         this.customizer = customize;
@@ -68,25 +87,30 @@ export class RayTracer implements IRayTracer {
         } this.image.needsUpdate = true;
     }
     emitPhotons() {
-        for (let i = 0; i < this.plate.resolution.x; i++) {
-            for (let j = 0; j < this.plate.resolution.y; j++) {
-                // if ((i < 8 || i > 24) && j >= 16 && j < 32)
-                // if (j > 8 && j < 24)
-                this.emitFrom(i, j);                            }
-        }
+        // for (let i = 0; i < this.plate.resolution.x; i++) {
+        //     for (let j = 0; j < this.plate.resolution.y; j++) {
+        //         // if ((i < 8 || i > 24) && j >= 16 && j < 32)
+        //         // if (j > 8 && j < 24)
+        //         this.emitFrom(i, j);                            }
+        // }
+        const rays = this.emitter.emit();
+        rays.forEach(ray => {
+            this.postEmit(ray);
+        });
     }
     emitFrom(i: number, j: number) {
-        const perturbx = 0; Math.random() * 0.6 + 0.2;
-        const perturby = 0; Math.random() * 0.6 + 0.2;
-        const x = (i + perturbx) / this.plate.resolution.x * this.plate.width - this.plate.width/2;
-        const y = (j + perturby) / this.plate.resolution.y * this.plate.height- this.plate.height/2;
-        const z = this.DIST_TO_PLATE;
-        // Transform this velocity by the camera's transform
-        const vel = new Vector3(x, y, z);
-        vel.applyQuaternion(this.rotation);
-        this.generator.parameter(i, j, vel);
-        const ray = this.generator.generate();
-        ray.setPosition(this.hole.x, this.hole.y, this.hole.z);
+        // const perturbx = 0; Math.random() * 0.6 + 0.2;
+        // const perturby = 0; Math.random() * 0.6 + 0.2;
+        // const x = (i + perturbx) / this.plate.resolution.x * this.plate.width - this.plate.width/2;
+        // const y = (j + perturby) / this.plate.resolution.y * this.plate.height- this.plate.height/2;
+        // const z = this.DIST_TO_PLATE;
+        // // Transform this velocity by the camera's transform
+        // const vel = new Vector3(x, y, z);
+        // vel.applyQuaternion(this.rotation);
+        // this.generator.parameter(i, j, vel);
+        // const ray = this.generator.generate();
+        // ray.setPosition(this.hole.x, this.hole.y, this.hole.z);
+        const ray = this.emitter.emitFrom(i, j);
         this.postEmit(ray);
     }
     emitFromRandomPixel() {
