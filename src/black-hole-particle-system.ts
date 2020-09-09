@@ -29,8 +29,19 @@ export class BlackHoleParticleSystem extends ParticleSystem {
                 }
             }
         }, this);
-        
+
         return derivative;
+    }
+    updateAllParticles() {
+        this.particles.forEach((particle, i) => {
+            if (this.particles[i].getType() == SpaceParticle.PHOTON) {
+                const d = this.derivative.get(i);
+                const pos = particle.getPosition();
+                const v = particle.getVelocity();
+                particle.setPosition(pos.x + d[0], pos.y + d[1], pos.z + d[2]);
+                particle.setVelocity(v.x + d[3], v.y + d[4], v.z + d[5]);
+            }
+        }, this);
     }
     updateHook() {
         const len = this.particles.length;

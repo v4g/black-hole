@@ -33,7 +33,36 @@ export class RayTracingCollisionManager {
     updateParticleInOctree(particle: IParticle) {
 
     }
-
+    /**
+     * On collision of ray with particle, set the color for the 
+     * rays pixel
+     * Do a red-shift by dot product of the velocities 
+     * If velocities are going in opposite directions, the particle
+     * will be red-shifted
+     * @param particle 
+     */
+    onCollision(particle: IParticle, ray: PixelRay) {
+        let color = [16, 0, 0, 0];
+        color = this.dopplerShiftColor(color, particle.getVelocity(), ray.getVelocity());
+        this.raytracer.setPixel(ray.getOriginPixel().x, ray.getOriginPixel().y, color, new Vector3());                    
+    }
+    dopplerShiftColor(color: Array<number>, vel_particle: Vector3, vel_ray: Vector3): Array<number> {
+        let dir = vel_ray.clone().normalize();
+        let dot = vel_particle.dot(dir);
+        let diff = dir.multiplyScalar(vel_particle.dot(dir));
+        const ratio = diff.length()/vel_ray.length();
+        const INCREMENTS = 16;
+        // TODO should we remove color from other components. Technically the color should
+        // be interpolated along the frequency spectrum
+        if (dot > 0) {
+            // red shift
+            color[0] = Math.min(color[0] + Math.ceil(ratio * INCREMENTS), 255);
+        } else {
+            // blue shift
+            color[2] = Math.min(color[2] + Math.ceil(ratio * INCREMENTS), 255);
+        }
+        return color;
+    }
     update(time_step: number) {
         this.rays.forEach(r => {
             const from = r.getPosition();
@@ -43,35 +72,19 @@ export class RayTracingCollisionManager {
             const node = this.octree.findRay(from, to)
             if (node) {
                 const obstacles = node.getObjects();
-                // if (obstacles.length > 3) {
-                // console.log("Comparing with %s objects", obstacles.length);                
-                // }
                 obstacles.forEach(o => {
                     if (o.intersectsWithRay(from, to, r.getRadius())) {
                         r.onDeath();
                         const color = [16, 0, 0, 0];
                         // if (r.getOriginPixel().y > 24) {
-                            // console.log("Collision has occured",r.getOriginPixel(), r.getPosition(), (o as Particle).getPosition());
+                        // console.log("Collision has occured",r.getOriginPixel(), r.getPosition(), (o as Particle).getPosition());
                         // }
-                        this.raytracer.setPixel(r.getOriginPixel().x, r.getOriginPixel().y, color, new Vector3());
+                        // TODO ugly code here should perhaps be overridden in another collision manager that does not take static objects
+                        this.onCollision(o as any as IParticle, r);
+                        // this.raytracer.setPixel(r.getOriginPixel().x, r.getOriginPixel().y, color, new Vector3());
                     }
                 });
             }
-            // this.obstacles.forEach(o => {
-            //     // Keeping this very specific to constant colored spheres here
-            //     // Update this to return a more complex object that contains
-            //     // the desired color. What happens in case of refractions?
-            //     if (o.intersectsWithRay(from, to, r.getRadius())) {
-            //         r.onDeath();
-            //         if (r.getOriginPixel().y > 24) {
-            //             console.log("Collision has occured", r.getPosition(), (o as Particle).getPosition());
-
-            //         }
-            //         const color = [16, 0, 0, 0];
-            //         // console.log("Collision has occured", r.getOriginPixel());
-            //         this.raytracer.setPixel(r.getOriginPixel().x, r.getOriginPixel().y, color, new Vector3());
-            //     }
-            // });
         });
     }
 }

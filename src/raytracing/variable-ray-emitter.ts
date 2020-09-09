@@ -94,7 +94,7 @@ export class VariableRayEmitter implements IRayEmitter {
     }
     hasExceededRayCount(x: number, y: number): boolean {
         const index = y * this.resolution.x + x;
-        const limit = this.MAX_EMISSIONS_FROM_PIXEL - Math.min(1, Math.max(1 - index % 7, 0) + Math.max(1 - index % 3, 0));
+        const limit = this.MAX_EMISSIONS_FROM_PIXEL;
         return this.rayEmittedCount[index] > limit;
     }
     emitFromRegion(min: Vector2, max: Vector2): PixelRay {

@@ -141,10 +141,10 @@ export class ParticleSystem {
      * @param time_step The step by which to advance the system
      */
     update(time_step: number) {
-        this.profiler.start("RK4", 1000);
+        // this.profiler.start("RK4", 1000);
         // this.updateRK4(time_step);
         this.updateMidPoint(time_step);
-        this.profiler.stop("RK4", 1000);
+        // this.profiler.stop("RK4", 1000);
         this.updateHook();
         this.postUpdate();
         this.updateParticleLives(time_step);

@@ -127,7 +127,7 @@ export class BlackHoleSystem {
 
     emitParticles() {
         let count = 0;
-        while(count < 100) {
+        while(count < 500) {
             const particle = this.particleGenerator.generate();
             this.ps.addParticle(particle);
             this.obstacles.push(particle as any as IRayTraceable);
