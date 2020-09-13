@@ -60,12 +60,12 @@ export class BlackHoleSystem {
         this.ps.setEventHorizon(this.getSchwarzchildRadius());
         this.ps.setBounds(new Vector3(-50, -50, -50), new Vector3(50, 50, 200));
         this.raytracer = new RayTracer(scene, new Vector3(0, 0, 100), new Vector3(0, 0, -1), Math.PI / 8, this.RESOLUTION, this.units.getScaledVelocity(299792458));
-        const gridEmitter = new GridEmitter(this.raytracer, new Vector2(this.RESOLUTION, this.RESOLUTION), new RayTracingPhotonGenerator(scene, this.units.getScaledVelocity(299792458)));
+        // const gridEmitter = new GridEmitter(this.raytracer, new Vector2(this.RESOLUTION, this.RESOLUTION), new RayTracingPhotonGenerator(scene, this.units.getScaledVelocity(299792458)));
         this.obstacles = new Array<IRayTraceable>();
         this.emitParticles();
         this.customizer = new ParticleSystemCustomizer(this.ps, this.raytracer, this.obstacles, 0);
         this.raytracer.setCustomizer(this.customizer)
-        this.raytracer.emitPhotons(gridEmitter);
+        // this.raytracer.emitPhotons(gridEmitter);
         scene.add(this.raytracer.getPhoto());
 
     }
