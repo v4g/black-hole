@@ -43,6 +43,9 @@ export class RayTracer implements IRayTracer {
         this.createGenerator(c);
         this.emitter = new VariableRayEmitter(this.getResolution(), this, this.generator);
     }
+    objectWasHit(x: number, y: number) {
+        this.emitter.objectWasHit(x, y);
+    }
     getWidth(): number {
         return this.plate.width;
     }
@@ -86,14 +89,14 @@ export class RayTracer implements IRayTracer {
             this.customizer.update();
         } this.image.needsUpdate = true;
     }
-    emitPhotons() {
+    emitPhotons(emitter: IRayEmitter) {
         // for (let i = 0; i < this.plate.resolution.x; i++) {
         //     for (let j = 0; j < this.plate.resolution.y; j++) {
         //         // if ((i < 8 || i > 24) && j >= 16 && j < 32)
         //         // if (j > 8 && j < 24)
         //         this.emitFrom(i, j);                            }
         // }
-        const rays = this.emitter.emit();
+        const rays = emitter.emit();
         rays.forEach(ray => {
             this.postEmit(ray);
         });
@@ -130,7 +133,6 @@ export class RayTracer implements IRayTracer {
      */
     setPixel(x: number, y: number, color: number[], position: Vector3): any {
         this.plate.setPixel(x, y, color);
-        this.emitter.objectWasHit(x, y);
     }
 }
 export class RayTracingPhotonVelocityGenerator implements IVectorGenerator {

@@ -21,6 +21,7 @@ export class ParticleSystemCustomizer implements IRayTracingCustomizer {
     private collisionManager: RayTracingCollisionManager;
     raytracer: IRayTracer;
     private time_step: number;
+
     constructor(ps: ParticleSystem, raytracer: IRayTracer, obstacles: Array<IRayTraceable>, time_step: number) {
         this.rays = new Array<PixelRay>();
         this.particleSystem = ps;
@@ -31,8 +32,10 @@ export class ParticleSystemCustomizer implements IRayTracingCustomizer {
         this.raytracer = raytracer;
     }
     postEmit(ray: PixelRay): any {
-        this.particleSystem.addParticle(ray);
-        this.rays.push(ray);
+        if (ray != null) {
+            this.particleSystem.addParticle(ray);
+            this.rays.push(ray);    
+        }
     }
     setTimeStep(time_step: number) {
         this.time_step = time_step;

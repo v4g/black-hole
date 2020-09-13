@@ -35,3 +35,15 @@ Investigate:
     Simulation is unstable when particles get too close to the black hole. Why? If its just acceleration, a 2nd order method should suffice?
 
 Velocity generation of particles. The velocities must be generated tangential to the position of the particles (w.r.t  to the blackhole)
+
+Sachins ideas
+    Set a counter on photons to check how many objects that they have collided with. Stop checking after 1 collision
+    Create a background plane with an image. Return the color of the image where the photon hits it to get a picture of the
+    space behind the black hole efficiently
+    Distribution of the radius of the particles could be changed based on how far away they are from the black hole
+    Limit the number of rays being ejected from the camera
+
+Making a grid is tricky
+If I use the grid maker, I can't use the onHit method because it will only be called on collision. I could use a on bounds hit method but its so unclean
+alternatively i could totally decouple the process of making a grid by using a different customizer for creating the grid. The question then is to switch
+when the grid is done.

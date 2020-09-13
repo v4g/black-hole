@@ -12,4 +12,5 @@ export interface IRayTracer {
     getWidth(): number;
     getHeight(): number;
     postEmit(ray: PixelRay): any;
+    objectWasHit(x: number, y: number): any;
 }

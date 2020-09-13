@@ -10,13 +10,13 @@ module.exports = {
   devtool: 'inline-source-map',
   plugins: [
     new CleanWebpackPlugin(),
-    // new CopyWebpackPlugin({
-    //   patterns: [
-    //     { from: './src/css', to: './css' },
-    //     { from: './res/', to: './res' },
-    //     { from: './fonts/', to: './fonts' },
-    //   ],
-    // }),
+    new CopyWebpackPlugin({
+      patterns: [
+        // { from: './src/css', to: './css' },
+        { from: './res/', to: './res' },
+        // { from: './fonts/', to: './fonts' },
+      ],
+    }),
     new HtmlWebpackPlugin({
       title: 'ThreeJS',
       template: 'src/index.html'

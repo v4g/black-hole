@@ -18,7 +18,7 @@ export class VariableRayEmitter implements IRayEmitter {
     private readonly N_REGION_LEN = 4;
     private raytracer: IRayTracer;
     private generator: RayTracingPhotonGenerator;
-    private MAX_EMISSIONS_FROM_PIXEL = 8;
+    private MAX_EMISSIONS_FROM_PIXEL = 1;
     private rayEmittedCount: Array<number>;
     constructor(resolution: Vector2, raytracer: IRayTracer, generator: RayTracingPhotonGenerator) {
         this.resolution = resolution;

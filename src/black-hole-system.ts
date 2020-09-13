@@ -1,6 +1,6 @@
 import { BlackHoleParticleSystem } from "./black-hole-particle-system";
 import { SpaceParticleGenerator } from "./space-particle";
-import { Vector3, Scene, Vector2 } from "three";
+import { Vector3, Scene, Vector2, ImageBitmapLoader, ImageLoader, TextureLoader, Texture } from "three";
 import { ScaledUnits } from "./scaled-units";
 import { VisibleParticle } from "./particle-system/particle/visible-particle";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls";
@@ -17,6 +17,7 @@ import { IRayTraceable } from "./raytracing/i-raytraceable";
 import { Octree } from "./raytracing/collisions/octree";
 import { TimeProfile } from "./boilerplate/time-profile";
 import { VariableRayEmitter } from "./raytracing/variable-ray-emitter";
+import { GridEmitter } from "./raytracing/grid-emitter";
 
 /**
  * This class will encapsulate all the things needed to get the black
@@ -26,6 +27,7 @@ export class BlackHoleSystem {
     readonly MIN_ACCRETION_DISK_VEL = 199792458;
     readonly MAX_ACCRETION_DISK_VEL = 299792458;
     readonly BLACK_HOLE_MASS = 4.3e6;
+    readonly RESOLUTION = 256;
     controls: TrackballControls;
     ps: BlackHoleParticleSystem;
     blackHole: VisibleParticle;
@@ -57,12 +59,13 @@ export class BlackHoleSystem {
         this.initializeParticleGenerator(scene);
         this.ps.setEventHorizon(this.getSchwarzchildRadius());
         this.ps.setBounds(new Vector3(-50, -50, -50), new Vector3(50, 50, 200));
-        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 100), new Vector3(0, 0, -1), Math.PI / 8, 256, this.units.getScaledVelocity(299792458));
+        this.raytracer = new RayTracer(scene, new Vector3(0, 0, 100), new Vector3(0, 0, -1), Math.PI / 8, this.RESOLUTION, this.units.getScaledVelocity(299792458));
+        const gridEmitter = new GridEmitter(this.raytracer, new Vector2(this.RESOLUTION, this.RESOLUTION), new RayTracingPhotonGenerator(scene, this.units.getScaledVelocity(299792458)));
         this.obstacles = new Array<IRayTraceable>();
         this.emitParticles();
         this.customizer = new ParticleSystemCustomizer(this.ps, this.raytracer, this.obstacles, 0);
         this.raytracer.setCustomizer(this.customizer)
-        this.raytracer.emitPhotons();
+        this.raytracer.emitPhotons(gridEmitter);
         scene.add(this.raytracer.getPhoto());
 
     }
@@ -127,7 +130,8 @@ export class BlackHoleSystem {
 
     emitParticles() {
         let count = 0;
-        while(count < 500) {
+        const PARTICLE_COUNT = 0;
+        while(count < PARTICLE_COUNT) {
             const particle = this.particleGenerator.generate();
             this.ps.addParticle(particle);
             this.obstacles.push(particle as any as IRayTraceable);
